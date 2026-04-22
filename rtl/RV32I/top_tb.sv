@@ -14,7 +14,6 @@ end
 
 // ================= INIT =================
 initial begin
-    $readmemh("instruction_mem.dat", top_ins.new_fet.imem.mem);
     $readmemh("register_mem.dat", top_ins.decode_keda_keda.regfile.registers);
     $readmemh("data_mem.dat", top_ins.data_mem.dmem.memory);
 

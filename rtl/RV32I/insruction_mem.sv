@@ -10,6 +10,7 @@ module instruction_mem
     // Point this path to the .hex file you just generated
     $readmemh("../../sw/build/firmware.hex", mem);
   end
+
   always @(*) begin
     inst = mem[PC >> 2]; // FIXED
   end
