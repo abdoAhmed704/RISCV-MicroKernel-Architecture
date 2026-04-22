@@ -1,6 +1,6 @@
 vlib work
 
-vlog *.sv
+vlog ../rtl/RV32I/*.sv
 
 # simulate
 vsim -voptargs=+acc work.top_tb

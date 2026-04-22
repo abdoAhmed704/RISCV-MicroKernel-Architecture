@@ -6,6 +6,10 @@ module instruction_mem
 
   reg [MEM_Width-1:0]mem[MEM_Depth-1:0];
  
+  initial begin
+    // Point this path to the .hex file you just generated
+    $readmemh("../../sw/build/firmware.hex", mem_array);
+  end
   always @(*) begin
     inst = mem[PC >> 2]; // FIXED
   end
