@@ -26,6 +26,7 @@ logic [31:0] ImmExtE;
 logic [4:0] RdE;
 logic [2:0] funct3E;
 logic ImmPassE;
+logic I_TypeE;
 
 
 // memory:
@@ -84,7 +85,8 @@ decode decode_keda_keda(.clk(clk), .rst_n(rst_n),.instrD(instrD), .PCPlus4D(PCPl
          .Rs2D(Rs2D),
          .funct7_5E(funct7_5E),
          .funct3E(funct3E),
-         .ImmPassE(ImmPassE)
+         .ImmPassE(ImmPassE),
+         .I_TypeE(I_TypeE)
          );
 
 
@@ -94,7 +96,7 @@ mux3_1 mux_alu_2(.A(RD2E), .B(result), .C(ALUResultM), .Sel(ForwardBE), .out(mux
 excute excute_kda_kda( .clk(clk), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), 
                         .MemWriteE(MemWriteE), .jumpE(jumpE), .BranchE(BranchE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), 
                         .funct7_5E(funct7_5E), .funct3E(funct3E), .ImmPassE(ImmPassE),
-                        .RD1E(mux_R1_out), .RD2E(mux_R2_out), .ImmExtE(ImmExtE), .RdE(RdE), .RegWriteM(RegWriteM), 
+                        .I_TypeE(I_TypeE), .RD1E(mux_R1_out), .RD2E(mux_R2_out), .ImmExtE(ImmExtE), .RdE(RdE), .RegWriteM(RegWriteM), 
                         .ResultSrcM(ResultSrcM), .MemWriteM(MemWriteM), .ALUResultM(ALUResultM), .WriteDataM(WriteDataM), .RdM(RdM), .PCTargetE(PCTargetE), .PCPlus4M(PCPlus4M),
                         .ZeroE(ZeroE), .funct3M(funct3M));
 

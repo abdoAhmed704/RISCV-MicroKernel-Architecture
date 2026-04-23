@@ -8,8 +8,12 @@ module instruction_mem
  
   initial begin
     // Point this path to the .hex file you just generated
+    for (int i = 0; i < MEM_Depth; i++) mem[i] = 32'h0;
+
+
     $readmemh("../../sw/build/firmware.hex", mem);
   end
+
 
   always @(*) begin
     inst = mem[PC >> 2]; // FIXED

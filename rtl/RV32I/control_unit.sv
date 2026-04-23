@@ -10,7 +10,8 @@ module control_unit (
     output logic MemWrite, // Control signal for memory write enable
     output logic jump,
     output logic Branch,
-    output logic ImmPass
+    output logic ImmPass,
+    output logic I_Type
 );
     reg [1:0] ALUOp; // Control signal for ALU Decoder
 
@@ -25,7 +26,7 @@ module control_unit (
         RegWrite = 0; // Default to no register write
         MemWrite = 0; // Default to no memory write
         ALUOp = 2'b00; // Default to R-type operation
-
+        I_Type = 1'b0;
         case (opcode)
             7'b0110011: begin // R-type instructions
                 ResultSrc = 2'b00; // Default to ALU result
@@ -48,6 +49,7 @@ module control_unit (
                 Branch = 0;
                 jump=0;
                 ImmPass=0;
+                I_Type = 1'b1;
             end
             7'b1100011: begin // B Type - beq instruction
                 ResultSrc = 2'bxx; // Default to ALU result

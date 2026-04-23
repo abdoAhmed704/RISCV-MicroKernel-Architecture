@@ -14,14 +14,11 @@ end
 
 // ================= INIT =================
 initial begin
-    $readmemh("register_mem.dat", top_ins.decode_keda_keda.regfile.registers);
-    $readmemh("data_mem.dat", top_ins.data_mem.dmem.memory);
-
     reset_n = 0;
     repeat(2) @(negedge clk);
     reset_n = 1;
 
-    repeat(40) @(negedge clk);
+    repeat(90) @(negedge clk);
     $stop;
 end
 
@@ -38,7 +35,7 @@ int cycle = 0;
 always @(posedge clk) begin
     cycle++;
 
-    $display("%3d   |       %h / %h        |     %h    |         RD1=%h RD2=%h ALU=%h S=%h B=%h J=%h      | %h W=%b | Rd=%0d W=%b Res=%h |  funct7_5E=%b | funct_7_5=%b | funct3M=%b",
+    $display("%3d   |       %h / %h        |     %h    |         RD1=%h RD2=%h ALU=%h S=%h B=%h J=%h      | %h W=%b | Rd=%0d W=%b Res=%h", //   funct7_5E=%b | funct_7_5=%b | funct3M=%b
     
     // ===== FETCH =====
     cycle,
@@ -64,9 +61,9 @@ always @(posedge clk) begin
     top_ins.RdW,
     top_ins.RegWriteW,
     result,
-    top_ins.funct7_5E,
-    top_ins.decode_keda_keda.funct7_5,
-    top_ins.data_mem.funct3M
+    // top_ins.funct7_5E,
+    // top_ins.decode_keda_keda.funct7_5,
+    // top_ins.data_mem.funct3M
     );
 end
 

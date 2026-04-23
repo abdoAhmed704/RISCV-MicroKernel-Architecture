@@ -1,15 +1,17 @@
 module alu(
-input [31:0] src_a, src_b,
-input [2:0] alu_control,
-input funct7_5,
-output Zero,
-output reg [31:0] result
+input logic [31:0] src_a, src_b,
+input logic [2:0] alu_control,
+input logic funct7_5,
+input logic I_TypeE,
+
+output logic Zero,
+output logic [31:0] result
 );
 
 always @(*) begin
     case (alu_control)
         3'b000: begin
-            if(!funct7_5) begin
+            if(!funct7_5 || I_TypeE) begin
                 result = src_a + src_b;                  // ADD
             end
             else begin

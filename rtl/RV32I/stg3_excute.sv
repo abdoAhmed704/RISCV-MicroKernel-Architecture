@@ -16,7 +16,8 @@ module excute (
     input funct7_5E,
     input [2:0] funct3E,
     input ImmPassE,
-    
+    input I_TypeE,
+
     output reg RegWriteM,
     output reg [1:0] ResultSrcM,
     output reg MemWriteM,
@@ -47,6 +48,7 @@ module excute (
         .src_b(SrcBE), // Source operand B (either RD2E or ImmExtE based on ALUSrcE)
         .alu_control(ALUControlE), // ALU control signal
         .funct7_5(funct7_5E),  // funct7[5] from the instruction
+        .I_TypeE(I_TypeE),
         .Zero(ZeroE), // Zero flag output from ALU
         .result(ALUResultE) // ALU result (not used in this stage)
     );

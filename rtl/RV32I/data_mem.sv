@@ -1,18 +1,21 @@
 module data_mem #(
     parameter DATA_WIDTH = 32, // Width of data
     parameter ADDR_WIDTH = 32, 
-    parameter MEM_SIZE = 32 
+    parameter MEM_SIZE = 1024
 )(
-    input clk,
-    input WriteEnable,
-    input [2:0] funct3,
-    input [DATA_WIDTH-1:0] WriteData,
-    input [ADDR_WIDTH-1:0] Address,
-    output reg [DATA_WIDTH-1:0] ReadData
+    input logic clk,
+    input logic WriteEnable,
+    input logic [2:0] funct3,
+    input logic [DATA_WIDTH-1:0] WriteData,
+    input logic [ADDR_WIDTH-1:0] Address,
+    output logic [DATA_WIDTH-1:0] ReadData
 );
 
     reg [DATA_WIDTH-1:0] memory [0:MEM_SIZE-1];
-
+    initial begin
+        for (int i = 0; i < 1024; i++) memory[i] = 32'h0;
+    end
+    
     always_comb begin
         case (funct3)
             3'b000: ReadData = {{24{memory[Address[ADDR_WIDTH-1:0]][7]}}, memory[Address[ADDR_WIDTH-1:0]][7:0]};   // LOAD BYTE
