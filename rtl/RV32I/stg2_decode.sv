@@ -13,7 +13,10 @@ module decode (
     output logic [1:0] ResultSrcE,
     output logic MemWriteE,
     output logic jumpE,
+    
     output logic BranchE,
+    output logic [2:0] Branch_takenE,
+
     output logic [2:0] ALUControlE,
     output logic ALUSrcE,
     output logic [31:0] RD1E,
@@ -24,10 +27,9 @@ module decode (
     output logic [4:0] Rs2E, // Added for the hazard unit
     output logic [4:0] Rs1D, // Added for the hazard unit
     output logic [4:0] Rs2D, // Added for the hazard unit
-    output logic funct7_5E,
     output logic [2:0] funct3E,
     output logic ImmPassE,  // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
-    output logic I_TypeE
+    output logic  inst_typeE
 );
 
     logic RegWriteD;
@@ -35,6 +37,7 @@ module decode (
     logic MemWriteD;
     logic jumpD;
     logic BranchD;
+    logic [2:0] Branch_taken;
     logic [2:0] ALUControlD;
     logic ALUSrcD;
     logic [1:0] ImmSrcD;
@@ -45,7 +48,7 @@ module decode (
     logic ImmPassD; // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
 
     logic funct7_5;
-    logic I_Type;
+    logic inst_type;
 
     // for the hazard unit:
 
@@ -70,6 +73,7 @@ module decode (
     control_unit cu (
         .opcode(instrD[6:0]), // Opcode from the instruction
         .funct3(instrD[14:12]),  // funct3 from the instruction
+        .funct7_5(funct7_5),
         .ResultSrc(ResultSrcD), // Control signal for ALU result source
         .ALUControl(ALUControlD), // Control signal for ALU operation
         .ALUSrc(ALUSrcD), // Control signal for ALU RD2 source .. Extended or not
@@ -78,8 +82,9 @@ module decode (
         .MemWrite(MemWriteD), // Control signal for memory write enable
         .jump(jumpD),
         .Branch(BranchD),
+        .Branch_taken(Branch_taken),
         .ImmPass(ImmPassD),
-        .I_Type(I_Type)
+        .inst_type(inst_type)
     );
 
 
@@ -115,8 +120,8 @@ module decode (
             Rs2E <= 0;
             funct3E <= 0;
             ImmPassE <= 0;
-            I_TypeE <= 0;
-
+            inst_typeE <= 0;
+            BranchE <= 0;
         end
         else begin
             PCE <= PCD; 
@@ -126,6 +131,7 @@ module decode (
             MemWriteE <= MemWriteD;
             jumpE <= jumpD;
             BranchE <= BranchD;
+            Branch_takenE <= Branch_taken;
             ALUControlE <= ALUControlD;
             ALUSrcE <= ALUSrcD;
             RD1E <= RD1;
@@ -134,10 +140,10 @@ module decode (
             RdE <= RdD;
             Rs1E <= Rs1D;
             Rs2E <= Rs2D;
-            funct7_5E <= funct7_5;
             funct3E <= instrD[14:12];
             ImmPassE <= ImmPassD;
-            I_TypeE <= I_Type;
+            inst_typeE <= inst_type;
+
         end
     end
 

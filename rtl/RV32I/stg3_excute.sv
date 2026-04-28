@@ -1,34 +1,31 @@
 module excute (
-    input clk,
-    input [31:0] PCE,
-    input [31:0] PCPlus4E,
-    input RegWriteE,
-    input [1:0] ResultSrcE,
-    input MemWriteE,
-    input jumpE,
-    input BranchE,
-    input [2:0] ALUControlE,
-    input ALUSrcE,
-    input [31:0] RD1E,
-    input [31:0] RD2E,
-    input [31:0] ImmExtE,
-    input [4:0] RdE,
-    input funct7_5E,
-    input [2:0] funct3E,
-    input ImmPassE,
-    input I_TypeE,
+    input logic clk,
+    input logic [31:0] PCE,
+    input logic [31:0] PCPlus4E,
+    input logic RegWriteE,
+    input logic [1:0] ResultSrcE,
+    input logic MemWriteE,
+    input logic jumpE,
+    input logic [2:0] ALUControlE,
+    input logic ALUSrcE,
+    input logic [31:0] RD1E,
+    input logic [31:0] RD2E,
+    input logic [31:0] ImmExtE,
+    input logic [4:0] RdE,
+    input logic [2:0] funct3E,
+    input logic ImmPassE,
+    input logic inst_typeE,
 
-    output reg RegWriteM,
-    output reg [1:0] ResultSrcM,
-    output reg MemWriteM,
-    output reg [31:0] ALUResultM,
-    output reg [31:0] WriteDataM,
-    output reg [4:0] RdM,
-    output reg [31:0] PCTargetE,
-    output reg [31:0] PCPlus4M,
-    output ZeroE,
-    output reg [2:0] funct3M
-
+    output logic  RegWriteM,
+    output logic  [1:0] ResultSrcM,
+    output logic  MemWriteM,
+    output logic  [31:0] ALUResultM,
+    output logic  [31:0] WriteDataM,
+    output logic  [4:0] RdM,
+    output logic  [31:0] PCTargetE,
+    output logic  [31:0] PCPlus4M,
+    output logic ZeroE,
+    output logic [2:0] funct3M
 );
 
 
@@ -46,9 +43,8 @@ module excute (
     alu aluE (
         .src_a(RD1E), // Source operand A
         .src_b(SrcBE), // Source operand B (either RD2E or ImmExtE based on ALUSrcE)
+        .inst_typeE(inst_typeE),
         .alu_control(ALUControlE), // ALU control signal
-        .funct7_5(funct7_5E),  // funct7[5] from the instruction
-        .I_TypeE(I_TypeE),
         .Zero(ZeroE), // Zero flag output from ALU
         .result(ALUResultE) // ALU result (not used in this stage)
     );

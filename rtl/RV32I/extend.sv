@@ -15,6 +15,8 @@ always @(*) begin
         imm_extend = {{Instr[31:12], 12'b0}}; // U Type
     end
     endcase
+    // $display("imm_Src=%b === imm_extend=%b", imm_Src, imm_extend);
+
 end
 
 

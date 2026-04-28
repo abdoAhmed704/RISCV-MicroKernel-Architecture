@@ -35,9 +35,12 @@ int cycle = 0;
 always @(posedge clk) begin
     cycle++;
 
-    $display("%3d   |       %h / %h        |     %h    |         RD1=%h RD2=%h ALU=%h S=%h B=%h J=%h      | %h W=%b | Rd=%0d W=%b Res=%h", //   funct7_5E=%b | funct_7_5=%b | funct3M=%b
+    $display(" (PCSrcE=%b, target_taken=%b, Branch=%b)  ====  %3d   |       %h / %h        |     %h    |         RD1=%h RD2=%h ALU=%h S=%h B=%h J=%h      | %h W=%b | Rd=%0d W=%b Res=%h", //   funct7_5E=%b | funct_7_5=%b | funct3M=%b
     
     // ===== FETCH =====
+    top_ins.PCSrcE,
+    top_ins.target_taken,
+    top_ins.BranchE,
     cycle,
     top_ins.new_fet.PCF,
     top_ins.new_fet.instrF,
@@ -48,7 +51,7 @@ always @(posedge clk) begin
     // ===== EXECUTE =====
     top_ins.RD1E,
     top_ins.RD2E,
-    top_ins.excute_kda_kda.ALUResultE,   // لو عندك ALUResultE استخدمه أفضل
+    top_ins.excute_kda_kda.ALUResultE,
     top_ins.ALUSrcE,
     top_ins.BranchE,
     top_ins.jumpE,

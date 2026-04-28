@@ -17,6 +17,7 @@ logic RegWriteE;
 logic [1:0] ResultSrcE; 
 logic MemWriteE; 
 logic jumpE; 
+logic [2:0] Branch_takenE;
 logic BranchE; 
 logic [2:0] ALUControlE; 
 logic ALUSrcE;
@@ -27,7 +28,7 @@ logic [4:0] RdE;
 logic [2:0] funct3E;
 logic ImmPassE;
 logic I_TypeE;
-
+logic inst_typeE;
 
 // memory:
 logic RegWriteM;
@@ -64,6 +65,8 @@ logic [4:0] Rs1D, Rs2D;
 
 logic funct7_5E;
 
+logic target_taken;
+
 Hazard_Unit hu(.Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW), .ResultSrcE_0(ResultSrcE[0]), 
                 .RdE(RdE), .Rs1D(Rs1D), .Rs2D(Rs1D), .PCSrcE(PCSrcE), .FlushE(FlushE), .StallD(StallD), .StallF(StallF), .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .FlushD(FlushD));
 
@@ -76,27 +79,26 @@ fetch_stage new_fet(.clk(clk), .rst_n(rst_n), .PCTargetE(PCTargetE), .PCSrcE(PCS
 
 decode decode_keda_keda(.clk(clk), .rst_n(rst_n),.instrD(instrD), .PCPlus4D(PCPlus4D), .PCD(PCD), .RegWriteW(RegWriteW), .ResultW(result),
          .RdW(RdW), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), .MemWriteE(MemWriteE),
-         .jumpE(jumpE), .BranchE(BranchE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), .RD1E(RD1E), 
+         .jumpE(jumpE), .Branch_takenE(Branch_takenE), .BranchE(BranchE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), .RD1E(RD1E), 
          .RD2E(RD2E), .ImmExtE(ImmExtE), .RdE(RdE),
          .CLR(FlushE),
          .Rs1E(Rs1E),
          .Rs2E(Rs2E),
          .Rs1D(Rs1D),
          .Rs2D(Rs2D),
-         .funct7_5E(funct7_5E),
          .funct3E(funct3E),
          .ImmPassE(ImmPassE),
-         .I_TypeE(I_TypeE)
+         .inst_typeE(inst_typeE)
          );
 
 
 mux3_1 mux_alu_1(.A(RD1E), .B(result), .C(ALUResultM), .Sel(ForwardAE), .out(mux_R1_out));
 mux3_1 mux_alu_2(.A(RD2E), .B(result), .C(ALUResultM), .Sel(ForwardBE), .out(mux_R2_out));
 
-excute excute_kda_kda( .clk(clk), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), 
-                        .MemWriteE(MemWriteE), .jumpE(jumpE), .BranchE(BranchE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), 
-                        .funct7_5E(funct7_5E), .funct3E(funct3E), .ImmPassE(ImmPassE),
-                        .I_TypeE(I_TypeE), .RD1E(mux_R1_out), .RD2E(mux_R2_out), .ImmExtE(ImmExtE), .RdE(RdE), .RegWriteM(RegWriteM), 
+excute excute_kda_kda(  .clk(clk), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), 
+                        .MemWriteE(MemWriteE), .jumpE(jumpE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), 
+                        .inst_typeE(inst_typeE), .funct3E(funct3E), .ImmPassE(ImmPassE),
+                        .RD1E(mux_R1_out), .RD2E(mux_R2_out), .ImmExtE(ImmExtE), .RdE(RdE), .RegWriteM(RegWriteM), 
                         .ResultSrcM(ResultSrcM), .MemWriteM(MemWriteM), .ALUResultM(ALUResultM), .WriteDataM(WriteDataM), .RdM(RdM), .PCTargetE(PCTargetE), .PCPlus4M(PCPlus4M),
                         .ZeroE(ZeroE), .funct3M(funct3M));
 
@@ -110,6 +112,8 @@ memory data_mem(.clk(clk), .RegWriteM(RegWriteM), .ResultSrcM(ResultSrcM), .MemW
 mux3_1 mux_w(.A(ALUResultW), .B(ReadDataW), .C(PCPlus4W), .Sel(ResultSrcW), .out(result));
 
 
-assign PCSrcE = (BranchE && ZeroE) || jumpE;
+pcSrc_controller pcontrol (.ZeroE(ZeroE), .Branch_takenE(Branch_takenE), .BranchE(BranchE), .target_taken(target_taken));
+
+assign PCSrcE = target_taken || jumpE;
 
 endmodule
