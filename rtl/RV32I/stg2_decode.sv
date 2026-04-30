@@ -40,7 +40,7 @@ module decode (
     logic [2:0] Branch_taken;
     logic [2:0] ALUControlD;
     logic ALUSrcD;
-    logic [1:0] ImmSrcD;
+    logic [2:0] ImmSrcD;
     logic [31:0] RD1;
     logic [31:0] RD2;
     logic [31:0] ImmExtD;

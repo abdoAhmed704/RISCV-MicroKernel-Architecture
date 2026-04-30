@@ -6,7 +6,7 @@ module control_unit (
     output logic [1:0]ResultSrc, // Control signal for ALU result source
     output logic [2:0] ALUControl, // Control signal for ALU operation
     output logic ALUSrc, // Control signal for ALU RD2 source .. Extended or not
-    output logic [1:0] ImmSrc, // Control signal for immediate value source
+    output logic [2:0] ImmSrc, // Control signal for immediate value source
     output logic RegWrite, // Control signal for register write enable
     output logic MemWrite, // Control signal for memory write enable
     output logic jump,
@@ -21,7 +21,7 @@ module control_unit (
         // Default values for control signals
         ResultSrc = 2'b00; // Default to ALU result
         ALUSrc = 0; // Default to register source
-        ImmSrc = 2'b00; // Default to no immediate
+        ImmSrc = 3'b00; // Default to no immediate
         RegWrite = 0; // Default to no register write
         MemWrite = 0; // Default to no memory write
         ALUOp = 2'b00; // Default to R-type operation
@@ -32,7 +32,7 @@ module control_unit (
             7'b0110011: begin // R-type instructions
                 ResultSrc = 2'b00; // Default to ALU result
                 ALUSrc = 0; // Default to register source
-                ImmSrc = 2'bxx; // Default to no immediate
+                ImmSrc = 3'bxxx; // Default to no immediate
                 RegWrite = 1; // Default to no register write
                 MemWrite = 0; // Default to no memory write
                 ALUOp = 2'b10; // Default to R-type operation
@@ -42,7 +42,7 @@ module control_unit (
             7'b0010011: begin // I-type instructions (ADDI)
                 ResultSrc = 2'b00; // Default to ALU result
                 ALUSrc = 1; // Use immediate value for ALU source
-                ImmSrc = 2'b00; // Use I-type immediate for address calculation
+                ImmSrc = 3'b000; // Use I-type immediate for address calculation
                 RegWrite = 1; // Enable register write for I-type instructions
                 MemWrite = 0; // Disable memory write for I-type instructions
                 ALUOp = 2'b10; // Set ALU operation type for I-type instructions
@@ -52,7 +52,7 @@ module control_unit (
             7'b1100011: begin // B Type - beq instruction
                 ResultSrc = 2'bxx; // Default to ALU result
                 ALUSrc = 0; // Default to register source
-                ImmSrc = 2'b10; // Use B-type immediate for branch address calculation
+                ImmSrc = 3'b010; // Use B-type immediate for branch address calculation
                 RegWrite = 0; // Disable register write for branch instructions
                 MemWrite = 0; // Disable memory write for branch instructions
                 ALUOp = 2'b01; // Set ALU operation type for branch instructions
@@ -62,7 +62,7 @@ module control_unit (
             end
             7'b0000011: begin // Load instructions (LW)
                 ALUSrc = 1; // Use immediate value for address calculation
-                ImmSrc = 2'b00; // Use I-type immediate for load instructions
+                ImmSrc = 3'b000; // Use I-type immediate for load instructions
                 RegWrite = 1; // Enable register write for load instructions
                 MemWrite = 0; // Disable memory write for load instructions
                 ALUOp = 2'b00; // Set ALU operation type for load instructions
@@ -73,7 +73,7 @@ module control_unit (
             end
             7'b0100011: begin // Store instructions (SW)
                 ALUSrc = 1; // Use immediate value for address calculation
-                ImmSrc = 2'b01; // Use S-type immediate for store instructions
+                ImmSrc = 3'b001; // Use S-type immediate for store instructions
                 RegWrite = 0; // Disable register write for store instructions
                 MemWrite = 1; // Enable memory write for store instructions
                 ALUOp = 2'b00; // Set ALU operation type for store instructions
@@ -84,27 +84,27 @@ module control_unit (
             end
             7'b1101111: begin // JAL instruction
                 ALUSrc = 1'bx; // Use register source for address calculation
-                ImmSrc = 2'b11; // Use J-type immediate for jump address calculation
+                ImmSrc = 3'b100; // Use J-type immediate for jump address calculation
                 RegWrite = 1; // Enable register write for JAL instruction
                 MemWrite = 0; // Disable memory write for JAL instruction
                 ALUOp = 2'bxx; // Set ALU operation type for JAL instruction
                 ResultSrc = 2'b10; // Use memory data as result for JAL instruction
-                jump=0;
+                jump=1;
                 ImmPass=0;
             end
             7'b1100111: begin // JALR instruction
                 ALUSrc = 1; // Use immediate value for address calculation
-                ImmSrc = 2'b00; // Use I-type immediate for JALR instruction
+                ImmSrc = 3'b000; // Use I-type immediate for JALR instruction
                 RegWrite = 1; // Enable register write for JALR instruction
                 MemWrite = 0; // Disable memory write for JALR instruction
                 ALUOp = 2'bxx; // Set ALU operation type for JALR instruction
-                ResultSrc = 2'b10; // Use memory data as result for JALR instruction
+                ResultSrc = 2'b00; // Use memory data as result for JALR instruction
                 jump=1;
                 ImmPass=0;
             end
             7'b0110111: begin // LUI instruction
                 ALUSrc = 1; // Use immediate value for address calculation
-                ImmSrc = 2'b11; // Use U-type immediate for LUI instruction
+                ImmSrc = 3'b011; // Use U-type immediate for LUI instruction
                 RegWrite = 1; // Enable register write for LUI instruction
                 MemWrite = 0; // Disable memory write for LUI instruction
                 ALUOp = 2'b00; // Set ALU operation type for LUI instruction
@@ -114,7 +114,7 @@ module control_unit (
             end
             7'b0010111: begin // AUIPC instruction
                 ALUSrc = 1; // Use immediate value for address calculation
-                ImmSrc = 2'b11; // Use U-type immediate for AUIPC instruction
+                ImmSrc = 3'b011; // Use U-type immediate for AUIPC instruction
                 RegWrite = 1; // Enable register write for AUIPC instruction
                 MemWrite = 0; // Disable memory write for AUIPC instruction
                 ALUOp = 2'b00; // Set ALU operation type for AUIPC instruction
@@ -124,7 +124,7 @@ module control_unit (
             end
             7'b1110011: begin // ECALL instruction ane EBREAK instruction
                 ALUSrc = 1'bx; // Don't care for ECALL
-                ImmSrc = 2'bxx; // Don't care for ECALL
+                ImmSrc = 3'b0xx; // Don't care for ECALL
                 RegWrite = 0; // Disable register write for ECALL instruction
                 MemWrite = 0; // Disable memory write for ECALL instruction
                 ALUOp = 2'bxx; // Don't care for ECALL instruction
