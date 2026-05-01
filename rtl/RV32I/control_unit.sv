@@ -12,8 +12,9 @@ module control_unit (
     output logic jump,
     output logic [2:0] Branch_taken,
     output logic Branch,
-    output logic ImmPass,
-    output logic inst_type
+    output logic [1:0] ImmPass,
+    output logic inst_type,
+    output logic jalr_pc
 );
     reg [1:0] ALUOp; // Control signal for ALU Decoder
 
@@ -28,6 +29,7 @@ module control_unit (
         inst_type = 0;
         Branch = 3'b000;
         Branch_taken = 3'b000;
+        jalr_pc=0;
         case (opcode)
             7'b0110011: begin // R-type instructions
                 ResultSrc = 2'b00; // Default to ALU result
@@ -97,10 +99,11 @@ module control_unit (
                 ImmSrc = 3'b000; // Use I-type immediate for JALR instruction
                 RegWrite = 1; // Enable register write for JALR instruction
                 MemWrite = 0; // Disable memory write for JALR instruction
-                ALUOp = 2'bxx; // Set ALU operation type for JALR instruction
-                ResultSrc = 2'b00; // Use memory data as result for JALR instruction
+                ALUOp = 2'b00; // Set ALU operation type for JALR instruction
+                ResultSrc = 2'b10; // Use memory data as result for JALR instruction
                 jump=1;
                 ImmPass=0;
+                jalr_pc=1;
             end
             7'b0110111: begin // LUI instruction
                 ALUSrc = 1; // Use immediate value for address calculation
@@ -110,7 +113,7 @@ module control_unit (
                 ALUOp = 2'b00; // Set ALU operation type for LUI instruction
                 ResultSrc = 2'b00; // Use memory data as result for LUI instruction
                 jump=0;
-                ImmPass=1;
+                ImmPass= 2'b01;
             end
             7'b0010111: begin // AUIPC instruction
                 ALUSrc = 1; // Use immediate value for address calculation
@@ -118,9 +121,9 @@ module control_unit (
                 RegWrite = 1; // Enable register write for AUIPC instruction
                 MemWrite = 0; // Disable memory write for AUIPC instruction
                 ALUOp = 2'b00; // Set ALU operation type for AUIPC instruction
-                ResultSrc = 2'b11; // Use memory data as result for AUIPC instruction
+                ResultSrc = 2'b00; // Use memory data as result for AUIPC instruction
                 jump=0;
-                ImmPass=1;
+                ImmPass= 2'b10;
             end
             7'b1110011: begin // ECALL instruction ane EBREAK instruction
                 ALUSrc = 1'bx; // Don't care for ECALL

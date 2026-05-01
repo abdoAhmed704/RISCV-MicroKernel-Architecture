@@ -9,7 +9,6 @@ module pcSrc_controller(
 always @(*) begin
     if (BranchE)
     begin
-        
         case(Branch_takenE)
         3'b000: 
             target_taken = ZeroE;

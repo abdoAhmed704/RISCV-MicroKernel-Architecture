@@ -28,8 +28,9 @@ module decode (
     output logic [4:0] Rs1D, // Added for the hazard unit
     output logic [4:0] Rs2D, // Added for the hazard unit
     output logic [2:0] funct3E,
-    output logic ImmPassE,  // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
-    output logic  inst_typeE
+    output logic [1:0] ImmPassE,  // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
+    output logic  inst_typeE,
+    output logic jalr_pcE
 );
 
     logic RegWriteD;
@@ -45,10 +46,11 @@ module decode (
     logic [31:0] RD2;
     logic [31:0] ImmExtD;
     logic [4:0] RdD;
-    logic ImmPassD; // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
+    logic [1:0] ImmPassD; // Added for the control unit to pass the immediate value to the execute stage for LUI and AUIPC instructions
 
     logic funct7_5;
     logic inst_type;
+    logic jalr_pc;
 
     // for the hazard unit:
 
@@ -84,7 +86,8 @@ module decode (
         .Branch(BranchD),
         .Branch_taken(Branch_taken),
         .ImmPass(ImmPassD),
-        .inst_type(inst_type)
+        .inst_type(inst_type),
+        .jalr_pc(jalr_pc)
     );
 
 
@@ -122,6 +125,7 @@ module decode (
             ImmPassE <= 0;
             inst_typeE <= 0;
             BranchE <= 0;
+            jalr_pcE <= 0;
         end
         else begin
             PCE <= PCD; 
@@ -143,7 +147,7 @@ module decode (
             funct3E <= instrD[14:12];
             ImmPassE <= ImmPassD;
             inst_typeE <= inst_type;
-
+            jalr_pcE <= jalr_pc;
         end
     end
 
