@@ -23,8 +23,9 @@ always @(*) begin
         3'b001: begin
             if(!inst_typeE)
                 result = src_a >> src_b[4:0];                                       // SRL (Logical)
-            else 
-                result = $signed(src_a) >>> src_b[4:0];                             // SRA (Arithmetic)
+            else begin
+                result = $signed(src_a) >>> src_b[4:0];                            // SRA (Arithmetic)
+            end
         end
         3'b010: result = src_a & src_b;                                             // AND
         3'b011: result = src_a | src_b;                                             // OR

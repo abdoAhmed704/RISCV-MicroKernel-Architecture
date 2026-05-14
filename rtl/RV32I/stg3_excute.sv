@@ -77,7 +77,7 @@ module excute (
             2'b10: ALUResultM <= PCTargetE;
             default: ALUResultM <= ALUResultE;
         endcase
-        $display("mux signal = %h, ImmExtE=%h, PCTargetE =%h, ALUResultM=%h", ImmPassE, ImmExtE, PCTargetE, ALUResultM);
+        // $display("mux signal = %h, ImmExtE=%h, PCTargetE =%h, ALUResultM=%h", ImmPassE, ImmExtE, PCTargetE, ALUResultM);
 
     end
 

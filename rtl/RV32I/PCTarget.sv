@@ -5,6 +5,7 @@ module PCTarget (
 );
 
     always @(*) begin
+        $display("PC = %h, ImmExt = %h", PC, ImmExt);
         PC_Target = PC + ImmExt; // Calculate the target address for branch instructions
     end
 

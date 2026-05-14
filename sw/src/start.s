@@ -2,7 +2,7 @@
 .global _start
 
 _start:
-    li sp, 0x3000      # Set Stack Pointer to top of RAM (adjust as needed)
-    call main          # Jump to C code
+    li sp, 0x00000F00    # Set stack pointer
+    call main            # Jump to main
 loop:
-    j loop             # Infinite loop if main returns
+    j loop               # Infinite loop when done

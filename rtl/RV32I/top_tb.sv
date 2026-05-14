@@ -18,7 +18,7 @@ initial begin
     repeat(2) @(negedge clk);
     reset_n = 1;
 
-    repeat(50) @(negedge clk);
+    repeat(150) @(negedge clk);
     $stop;
 end
 

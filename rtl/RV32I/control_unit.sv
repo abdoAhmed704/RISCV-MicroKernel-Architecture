@@ -174,10 +174,6 @@ module control_unit (
 
                     3'b001: begin
                         ALUControl = 3'b110;         // Shift left logical
-                         if(!funct7_5)
-                            inst_type = 1'b0;       // SRL (Logical)
-                        else 
-                            inst_type = 1'b1;       // SRA (Arithmetic)
                     end
                     3'b010: begin
                         ALUControl = 3'b101;        // Set Less Than -
@@ -190,6 +186,10 @@ module control_unit (
                     end
                     3'b101: begin
                         ALUControl = 3'b001;        // Shift right Logical and Arithematic
+                        if(!funct7_5)
+                            inst_type = 1'b0;       // SRL (Logical)
+                        else 
+                            inst_type = 1'b1;       // SRA (Arithmetic)
                     end
                     3'b110: begin
                         ALUControl = 3'b011;        // OR -

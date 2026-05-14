@@ -1,7 +1,7 @@
 module data_mem #(
     parameter DATA_WIDTH = 32, // Width of data
     parameter ADDR_WIDTH = 32, 
-    parameter MEM_SIZE = 1024
+    parameter MEM_SIZE = 4096
 )(
     input logic clk,
     input logic WriteEnable,
@@ -13,7 +13,7 @@ module data_mem #(
 
     reg [DATA_WIDTH-1:0] memory [0:MEM_SIZE-1];
     initial begin
-        for (int i = 0; i < 1024; i++) memory[i] = 32'h0;
+        for (int i = 0; i < MEM_SIZE; i++) memory[i] = 32'h0;
     end
     
     always_comb begin
@@ -29,6 +29,7 @@ module data_mem #(
 
     always @(posedge clk) begin
         if (WriteEnable) begin
+            $display("WriteEnable = %h, WriteData = %h, Address = %h", WriteEnable, WriteData, Address);
             case (funct3)
                 3'b000: memory[Address[ADDR_WIDTH-1:0]] <= {{24{1'b0}}, WriteData[7:0]};   // STORE BYTE
                 3'b001: memory[Address[ADDR_WIDTH-1:0]] <= {{16{1'b0}}, WriteData[15:0]};   // STORE HALF
