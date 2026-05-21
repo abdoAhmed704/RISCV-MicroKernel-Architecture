@@ -21,3 +21,5 @@ module register_file(A1, A2, A3, WD3, w_en, clk, RD1, RD2);
         end
     end
 endmodule
+
+
