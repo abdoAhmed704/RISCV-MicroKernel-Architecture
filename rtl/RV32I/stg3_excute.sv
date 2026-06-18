@@ -1,5 +1,6 @@
 module excute (
     input logic clk,
+    input logic rst_n,
     input logic [31:0] PCE,
     input logic [31:0] PCPlus4E,
     input logic RegWriteE,
@@ -63,22 +64,32 @@ module excute (
     assign PCTargetE_new = (jalr_pcE)? ALUResultE: PCTargetE;
 
     // Pipeline register for the execute stage to memory stage
-    always @(posedge clk) begin
-        RegWriteM <= RegWriteE; // Pass register write enable signal to memory stage
-        ResultSrcM <= ResultSrcE; // Pass ALU result source control signal to memory stage
-        MemWriteM <= MemWriteE; // Pass memory write enable signal to memory stage
-        WriteDataM <= WriteDataE; // Pass data to be written to memory to memory stage
-        RdM <= RdE; // Pass destination register address to memory stage
-        PCPlus4M <= PCPlus4E; // Pass PC + 4 to memory stage
-        funct3M <= funct3E;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            RegWriteM  <= 0;
+            ResultSrcM <= 0;
+            MemWriteM  <= 0;
+            WriteDataM <= 0;
+            RdM        <= 0;
+            PCPlus4M   <= 0;
+            funct3M    <= 0;
+            ALUResultM <= 0;
+        end else begin
+            RegWriteM <= RegWriteE; // Pass register write enable signal to memory stage
+            ResultSrcM <= ResultSrcE; // Pass ALU result source control signal to memory stage
+            MemWriteM <= MemWriteE; // Pass memory write enable signal to memory stage
+            WriteDataM <= WriteDataE; // Pass data to be written to memory to memory stage
+            RdM <= RdE; // Pass destination register address to memory stage
+            PCPlus4M <= PCPlus4E; // Pass PC + 4 to memory stage
+            funct3M <= funct3E;
 
-        case(ImmPassE)
-            2'b01: ALUResultM <= ImmExtE;
-            2'b10: ALUResultM <= PCTargetE;
-            default: ALUResultM <= ALUResultE;
-        endcase
-        // $display("mux signal = %h, ImmExtE=%h, PCTargetE =%h, ALUResultM=%h", ImmPassE, ImmExtE, PCTargetE, ALUResultM);
-
+            case(ImmPassE)
+                2'b01: ALUResultM <= ImmExtE;
+                2'b10: ALUResultM <= PCTargetE;
+                default: ALUResultM <= ALUResultE;
+            endcase
+            // $display("mux signal = %h, ImmExtE=%h, PCTargetE =%h, ALUResultM=%h", ImmPassE, ImmExtE, PCTargetE, ALUResultM);
+        end
     end
 
 

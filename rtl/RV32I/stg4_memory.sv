@@ -1,5 +1,6 @@
 module memory(
     input clk,
+    input rst_n,
     input RegWriteM,
     input [1:0] ResultSrcM,
     input MemWriteM,
@@ -30,14 +31,22 @@ module memory(
     );
 
     // Pipeline register for the memory stage to write-back stage
-    always @(posedge clk) begin
-        RegWriteW <= RegWriteM; // Pass register write enable signal to write-back stage
-        ResultSrcW <= ResultSrcM; // Pass ALU result source control signal to write-back stage
-        RdW <= RdM; // Pass destination
-        PCPlus4W <= PCPlus4M; // Pass PC + 4 to write-back stage
-        ALUResultW <= ALUResultM; // Pass ALU result to write-back stage
-        ReadDataW <= ReadDataM; // Pass data read from memory to write-back stage
-
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            RegWriteW  <= 0;
+            ResultSrcW <= 0;
+            RdW        <= 0;
+            PCPlus4W   <= 0;
+            ALUResultW <= 0;
+            ReadDataW  <= 0;
+        end else begin
+            RegWriteW <= RegWriteM; // Pass register write enable signal to write-back stage
+            ResultSrcW <= ResultSrcM; // Pass ALU result source control signal to write-back stage
+            RdW <= RdM; // Pass destination
+            PCPlus4W <= PCPlus4M; // Pass PC + 4 to write-back stage
+            ALUResultW <= ALUResultM; // Pass ALU result to write-back stage
+            ReadDataW <= ReadDataM; // Pass data read from memory to write-back stage
+        end
     end
 
 

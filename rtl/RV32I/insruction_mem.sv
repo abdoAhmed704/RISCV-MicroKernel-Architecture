@@ -11,7 +11,7 @@ module instruction_mem
     for (int i = 0; i < MEM_Depth; i++) mem[i] = 32'h0;
 
 
-    $readmemh("../../sw/build/firmware.hex", mem);
+    $readmemh("C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/build/firmware.hex", mem);
   end
 
 

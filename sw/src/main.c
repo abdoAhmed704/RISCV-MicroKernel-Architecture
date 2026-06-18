@@ -1,7 +1,9 @@
 int main()
 {
-    int a = 1;
-    int b = 2;
-    int c = a + b; // c should be 3
-    return c;      // Result will be in register a0 (x10)
+    volatile int limit = 5;
+    int sum = 0;
+    for (int i = 1; i <= limit; i++) {
+        sum += i;
+    }
+    return sum; // Expected return: 15 (0xF) in register a0 (x10)
 }

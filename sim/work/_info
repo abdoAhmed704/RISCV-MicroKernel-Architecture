@@ -3,6 +3,8 @@ K4
 z2
 Z0 !s99 nomlopt
 R0
+R0
+R0
 !s11f vlog 2021.1 2021.01, Jan 19 2021
 13
 !s112 1.1
@@ -14,373 +16,432 @@ Z1 dC:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture
 T_opt
 !s110 1776828132
 V@Ubh4TiU5LBedUf36T;4S1
-04 6 4 work top_tb fast 0
+Z2 04 6 4 work top_tb fast 0
 =1-7c8ae19cdeb7-69e83ee3-369-4868
-!s124 OEM100
+Z3 !s124 OEM100
 o-quiet -auto_acc_if_foreign -work work +acc
-Z2 tCvgOpt 0
+Z4 tCvgOpt 0
 n@_opt
-OL;O;2021.1;73
+Z5 OL;O;2021.1;73
 R1
+T_opt1
+!s110 1781682842
+VTK_QMVj;g>IRiEhlA^C6e0
+R2
+=1-7c8ae19cdeb7-6a32529a-2c4-c958
+R3
+o-quiet -auto_acc_if_foreign -work work
+R4
+n@_opt1
+R5
 valu
-Z3 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-Z4 !s110 1776828520
+Z6 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z7 !s110 1781682825
 !i10b 1
-!s100 ]2dOcKCNBcn_A`PhSn0ha3
-IQ7`_d9CVVc]Zka[jEEb6z1
+!s100 8l6XC^0@?Tm]TH80Rm><Y1
+Iii8XSAQNS]]I=IC;:RlBo2
 S1
 R1
-Z5 w1776827727
+w1778692451
 8../rtl/RV32I/alu.sv
 F../rtl/RV32I/alu.sv
-!i122 4
-L0 1 40
-Z6 VDg1SIo80bB@j0V0VzS_@n1
-Z7 OL;L;2021.1;73
+!i122 6
+L0 1 44
+Z8 VDg1SIo80bB@j0V0VzS_@n1
+Z9 OL;L;2021.1;73
 r1
 !s85 0
 31
-Z8 !s108 1776828520.000000
-!s107 ../rtl/RV32I/top_tb.sv|../rtl/RV32I/top_pipeline.sv|../rtl/RV32I/stg4_memory.sv|../rtl/RV32I/stg3_excute.sv|../rtl/RV32I/stg2_decode.sv|../rtl/RV32I/stg1_new_fetch.sv|../rtl/RV32I/register_file.sv|../rtl/RV32I/mux_3_1.sv|../rtl/RV32I/insruction_mem.sv|../rtl/RV32I/hazard_unit.sv|../rtl/RV32I/extend.sv|../rtl/RV32I/data_mem.sv|../rtl/RV32I/control_unit.sv|../rtl/RV32I/alu.sv|../rtl/RV32I/PCTarget.sv|
-Z9 !s90 -reportprogress|300|../rtl/RV32I/PCTarget.sv|../rtl/RV32I/alu.sv|../rtl/RV32I/control_unit.sv|../rtl/RV32I/data_mem.sv|../rtl/RV32I/extend.sv|../rtl/RV32I/hazard_unit.sv|../rtl/RV32I/insruction_mem.sv|../rtl/RV32I/mux_3_1.sv|../rtl/RV32I/register_file.sv|../rtl/RV32I/stg1_new_fetch.sv|../rtl/RV32I/stg2_decode.sv|../rtl/RV32I/stg3_excute.sv|../rtl/RV32I/stg4_memory.sv|../rtl/RV32I/top_pipeline.sv|../rtl/RV32I/top_tb.sv|
+Z10 !s108 1781682825.000000
+Z11 !s107 ../rtl/RV32I/top_tb.sv|../rtl/RV32I/top_pipeline.sv|../rtl/RV32I/stg4_memory.sv|../rtl/RV32I/stg3_excute.sv|../rtl/RV32I/stg2_decode.sv|../rtl/RV32I/stg1_new_fetch.sv|../rtl/RV32I/register_file.sv|../rtl/RV32I/PCTarget.sv|../rtl/RV32I/pcSrc_controller.sv|../rtl/RV32I/mux_3_1.sv|../rtl/RV32I/insruction_mem.sv|../rtl/RV32I/hazard_unit.sv|../rtl/RV32I/extend.sv|../rtl/RV32I/data_mem.sv|../rtl/RV32I/csr_unit.sv|../rtl/RV32I/control_unit.sv|../rtl/RV32I/alu.sv|
+Z12 !s90 ../rtl/RV32I/alu.sv|../rtl/RV32I/control_unit.sv|../rtl/RV32I/csr_unit.sv|../rtl/RV32I/data_mem.sv|../rtl/RV32I/extend.sv|../rtl/RV32I/hazard_unit.sv|../rtl/RV32I/insruction_mem.sv|../rtl/RV32I/mux_3_1.sv|../rtl/RV32I/pcSrc_controller.sv|../rtl/RV32I/PCTarget.sv|../rtl/RV32I/register_file.sv|../rtl/RV32I/stg1_new_fetch.sv|../rtl/RV32I/stg2_decode.sv|../rtl/RV32I/stg3_excute.sv|../rtl/RV32I/stg4_memory.sv|../rtl/RV32I/top_pipeline.sv|../rtl/RV32I/top_tb.sv|
 !i113 0
-Z10 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-R2
-vcontrol_unit
-R3
+Z13 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R4
+vcontrol_unit
+R6
+R7
 !i10b 1
-!s100 0EY9V=86Q1ZGCm>fnoY;b3
-Iz?>3L>Kaf]M4QeXW@]j1M2
+!s100 ]46GeR2cH7O^F_ciW=:S63
+IQK5AEm3zeILKihX@GOS=D3
 S1
 R1
-R5
+w1779300524
 8../rtl/RV32I/control_unit.sv
 F../rtl/RV32I/control_unit.sv
-!i122 4
-L0 1 190
-R6
-R7
+!i122 6
+L0 1 165
+R8
+R9
 r1
 !s85 0
 31
-R8
-Z11 !s107 ../rtl/RV32I/top_tb.sv|../rtl/RV32I/top_pipeline.sv|../rtl/RV32I/stg4_memory.sv|../rtl/RV32I/stg3_excute.sv|../rtl/RV32I/stg2_decode.sv|../rtl/RV32I/stg1_new_fetch.sv|../rtl/RV32I/register_file.sv|../rtl/RV32I/mux_3_1.sv|../rtl/RV32I/insruction_mem.sv|../rtl/RV32I/hazard_unit.sv|../rtl/RV32I/extend.sv|../rtl/RV32I/data_mem.sv|../rtl/RV32I/control_unit.sv|../rtl/RV32I/alu.sv|../rtl/RV32I/PCTarget.sv|
-R9
-!i113 0
 R10
-R2
-vdata_mem
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vcsr_unit
+R6
+R7
 !i10b 1
-!s100 @0]h06H7KIjC1AY0kKL<:3
-IkI?L:XP<ai3]WTmiZ:_7J3
+!s100 dTGU:GgFc9f?E:OO?eM7Q0
+IVE3E5eBCcdj`oj4N1Me<?3
 S1
 R1
-R5
+w1779301166
+8../rtl/RV32I/csr_unit.sv
+F../rtl/RV32I/csr_unit.sv
+!i122 6
+L0 1 93
+R8
+R9
+r1
+!s85 0
+31
+R10
+R11
+R12
+!i113 0
+R13
+R4
+vdata_mem
+R6
+R7
+!i10b 1
+!s100 7`;iE8WYXWo`on318]kDb0
+Ih?5dE?ClKCNJGzlBd8PMW3
+S1
+R1
+w1781682727
 8../rtl/RV32I/data_mem.sv
 F../rtl/RV32I/data_mem.sv
-!i122 4
-L0 1 38
-R6
-R7
+!i122 6
+L0 1 81
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vdecode
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vdecode
+R6
+R7
 !i10b 1
-!s100 <gNKJBG=R0gjoWzK2Rk@>3
-I=9SNa@Uh2LGW5CDMX:R1f3
+!s100 @BiJ=jOgHR=>[Mc5VN^A@1
+IX880oMQR2QQMm3<M7cf_40
 S1
 R1
-R5
+w1777621687
 8../rtl/RV32I/stg2_decode.sv
 F../rtl/RV32I/stg2_decode.sv
-!i122 4
-L0 1 141
-R6
-R7
+!i122 6
+L0 1 155
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vexcute
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vexcute
+R6
+R7
 !i10b 1
-!s100 >jb@LgWLdPkYb>JKTP[T<1
-IgaURX=F`bFmlV`:Vb25oz1
+!s100 [@`O90z1?IWYPI`b=>PQO3
+I=^N?Fj_c?@o[cW2^T]<zE3
 S1
 R1
-R5
+w1781682683
 8../rtl/RV32I/stg3_excute.sv
 F../rtl/RV32I/stg3_excute.sv
-!i122 4
-L0 1 81
-R6
-R7
+!i122 6
+L0 1 96
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vextend
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vextend
+R6
+R7
 !i10b 1
-!s100 QC[m6X=TQXRdJaRIS179P2
-Ij<LamCAY`[Y81cG@KnRL]1
+!s100 V2c_cLK;U2A3[Vk6]`oiX3
+Im1[Q<FY19URoE:GR8ZcQK1
 S1
 R1
-R5
+w1781682734
 8../rtl/RV32I/extend.sv
 F../rtl/RV32I/extend.sv
-!i122 4
-L0 1 21
-R6
-R7
+!i122 6
+L0 1 30
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vfetch_stage
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vfetch_stage
+R6
+R7
 !i10b 1
 !s100 Ej;E;FEZ2@R`SiQXJREHH2
 IkJG3[NhnnPQ`H`_UoUD]K2
 S1
 R1
-R5
+w1777511095
 8../rtl/RV32I/stg1_new_fetch.sv
 F../rtl/RV32I/stg1_new_fetch.sv
-!i122 4
+!i122 6
 L0 1 50
-R6
-R7
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vHazard_Unit
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vHazard_Unit
+R6
+R7
 !i10b 1
 !s100 >eSC6M:>121YIUk]OPYI53
 IK;iEGJ5KHa>B3Zb9W]Lmo0
 S1
 R1
-R5
+Z14 w1776827727
 8../rtl/RV32I/hazard_unit.sv
 F../rtl/RV32I/hazard_unit.sv
-!i122 4
+!i122 6
 L0 1 42
-R6
-R7
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
+R11
+R12
+!i113 0
+R13
+R4
 n@hazard_@unit
 vinstruction_mem
-R3
-R4
+R6
+R7
 !i10b 1
-!s100 `TBhC8bYLVoIIFF2<UOc^1
-I=AN09EH_<81Hhk8mo`=nR2
+!s100 34FnBlEzL``=LiOoUlaDC1
+I=?Ej3UG3WaXBDb>H>0KUL2
 S1
 R1
-Z12 w1776828118
+w1781682814
 8../rtl/RV32I/insruction_mem.sv
 F../rtl/RV32I/insruction_mem.sv
-!i122 4
-L0 1 18
-R6
-R7
+!i122 6
+L0 1 22
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vmemory
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vmemory
+R6
+R7
 !i10b 1
-!s100 <W]1YTk^ehNg?G2gCa21h3
-I:@U[Z=kIEl16Y;EH3C;AO1
+!s100 njG65M@Rk8QMj8]fO^^MW3
+Iz;`l:40`DdIl8ok9oW1@a0
 S1
 R1
-R5
+w1781682697
 8../rtl/RV32I/stg4_memory.sv
 F../rtl/RV32I/stg4_memory.sv
-!i122 4
-L0 1 44
-R6
-R7
+!i122 6
+L0 1 53
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vmux3_1
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vmux3_1
+R6
+R7
 !i10b 1
 !s100 IEfM1Ze7PFM^5_6NzHDj_3
 I3o^:;Ia[jH>e>YDC=o[X[3
 S1
 R1
-R5
+R14
 8../rtl/RV32I/mux_3_1.sv
 F../rtl/RV32I/mux_3_1.sv
-!i122 4
+!i122 6
 L0 1 17
-R6
-R7
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vPCTarget
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vpcSrc_controller
+R6
+R7
 !i10b 1
-!s100 mFC;UNZYa2OBI@ZAkbmkB0
-IBM=YH50dN<`;Emm6W9mQ03
+!s100 3CNK9gl1=DgUg<8TmSO?a2
+IIai6a8=neB=I=7i_mTgcK3
 S1
 R1
-R5
+w1778600460
+8../rtl/RV32I/pcSrc_controller.sv
+F../rtl/RV32I/pcSrc_controller.sv
+!i122 6
+L0 1 33
+R8
+R9
+r1
+!s85 0
+31
+R10
+R11
+R12
+!i113 0
+R13
+R4
+npc@src_controller
+vPCTarget
+R6
+R7
+!i10b 1
+!s100 `gWQgOaRT;m@^mBKe8fCb1
+I491oafR1Shab]j<0ZDIZo2
+S1
+R1
+w1778698520
 8../rtl/RV32I/PCTarget.sv
 F../rtl/RV32I/PCTarget.sv
-!i122 4
-L0 1 11
-R6
-R7
+!i122 6
+L0 1 12
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
+R11
+R12
+!i113 0
+R13
+R4
 n@p@c@target
 vregister_file
-R3
-R4
+R6
+R7
 !i10b 1
-!s100 Yc?bBne5R4GghaNg^=DTd2
-Il@KJ?hYhBBzJC_MaiUI0@0
+!s100 ?P7Gb=<dC41inBeSa@h[A1
+ICkRBaVJ>PG:3fk]zJCiC@3
 S1
 R1
-R5
+w1779294611
 8../rtl/RV32I/register_file.sv
 F../rtl/RV32I/register_file.sv
-!i122 4
-L0 1 20
-R6
-R7
+!i122 6
+L0 1 23
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vtop_pipeline
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vtop_pipeline
+R6
+R7
 !i10b 1
-!s100 komj_=aD=>68m0zz86G3?3
-IZHVfnDgYKMmU3B[]PO@Mf1
+!s100 4RBF3]cnO^KI_Jd7Fi9`g2
+I=>i9]I`7gPD9Tn7n:^5Dc2
 S1
 R1
-R5
+w1781682717
 8../rtl/RV32I/top_pipeline.sv
 F../rtl/RV32I/top_pipeline.sv
-!i122 4
-L0 1 113
-R6
-R7
+!i122 6
+L0 1 121
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
-vtop_tb
-R3
+R11
+R12
+!i113 0
+R13
 R4
+vtop_tb
+R6
+R7
 !i10b 1
-!s100 >2j43T2OG6iI7SAdRaP>L3
-IM4@Wh1dVXW_PFS5j6Q8eH3
+!s100 8?2MkXH3JzTiJS@kezfZ:3
+IdM0Y8cG6ZBf91Dba_NG=N3
 S1
 R1
-R12
+w1778601066
 8../rtl/RV32I/top_tb.sv
 F../rtl/RV32I/top_tb.sv
-!i122 4
+!i122 6
 L0 1 73
-R6
-R7
+R8
+R9
 r1
 !s85 0
 31
-R8
-R11
-R9
-!i113 0
 R10
-R2
+R11
+R12
+!i113 0
+R13
+R4

@@ -68,8 +68,10 @@ logic funct7_5E;
 
 logic target_taken;
 
+logic ZeroE;
+
 Hazard_Unit hu(.Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW), .ResultSrcE_0(ResultSrcE[0]), 
-                .RdE(RdE), .Rs1D(Rs1D), .Rs2D(Rs1D), .PCSrcE(PCSrcE), .FlushE(FlushE), .StallD(StallD), .StallF(StallF), .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .FlushD(FlushD));
+                .RdE(RdE), .Rs1D(Rs1D), .Rs2D(Rs2D), .PCSrcE(PCSrcE), .FlushE(FlushE), .StallD(StallD), .StallF(StallF), .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .FlushD(FlushD));
 
 
 
@@ -97,7 +99,7 @@ decode decode_keda_keda(.clk(clk), .rst_n(rst_n),.instrD(instrD), .PCPlus4D(PCPl
 mux3_1 mux_alu_1(.A(RD1E), .B(result), .C(ALUResultM), .Sel(ForwardAE), .out(mux_R1_out));
 mux3_1 mux_alu_2(.A(RD2E), .B(result), .C(ALUResultM), .Sel(ForwardBE), .out(mux_R2_out));
 
-excute excute_kda_kda(  .clk(clk), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), 
+excute excute_kda_kda(  .clk(clk), .rst_n(rst_n), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), 
                         .MemWriteE(MemWriteE), .jumpE(jumpE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), 
                         .inst_typeE(inst_typeE), .funct3E(funct3E), .ImmPassE(ImmPassE),
                         .jalr_pcE(jalr_pcE), .RD1E(mux_R1_out), .RD2E(mux_R2_out), .ImmExtE(ImmExtE), .RdE(RdE), .RegWriteM(RegWriteM), 
@@ -106,7 +108,7 @@ excute excute_kda_kda(  .clk(clk), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(Re
 
 
 
-memory data_mem(.clk(clk), .RegWriteM(RegWriteM), .ResultSrcM(ResultSrcM), .MemWriteM(MemWriteM), .ALUResultM(ALUResultM), 
+memory data_mem(.clk(clk), .rst_n(rst_n), .RegWriteM(RegWriteM), .ResultSrcM(ResultSrcM), .MemWriteM(MemWriteM), .ALUResultM(ALUResultM), 
             .WriteDataM(WriteDataM), .RdM(RdM), .PCPlus4M(PCPlus4M), .funct3M(funct3M), .RegWriteW(RegWriteW), .ResultSrcW(ResultSrcW), .RdW(RdW),
             .ALUResultW(ALUResultW), .ReadDataW(ReadDataW), .PCPlus4W(PCPlus4W));
 

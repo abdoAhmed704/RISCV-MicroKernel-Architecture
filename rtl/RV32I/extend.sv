@@ -17,8 +17,9 @@ always @(*) begin
     3'b100: begin // FOr J type
         imm_extend = { {12{Instr[31]}}, Instr[19:12], Instr[20], Instr[30:21], 1'b0 };
     end
-    
-    
+    default: begin
+        imm_extend = 32'b0;
+    end
     endcase
 
 
