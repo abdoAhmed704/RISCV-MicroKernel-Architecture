@@ -9,20 +9,20 @@ An advanced, bare-metal **RISC-V (RV32I)** 5-stage pipelined processor core writ
 ### 💻 Core Architecture
 *   **ISA Support:** Complete RV32I Base Integer Instruction Set (37 instructions), including computational, load/store, control transfer, and system operations.
 *   **5-Stage Classic Pipeline:**
-    *   **Fetch (IF):** Implements dynamic program counter (PC) logic with pipeline registers, stalling, and branch/jump flushes.
-    *   **Decode (ID):** Houses instruction decoding, immediate extensions, register file reads, and pipeline control signals.
-    *   **Execute (EX):** Contains the ALU, PC target calculators, and input bypass muxes.
-    *   **Memory (MEM):** Interchanges data with the RAM unit. Supports half-word, byte, and word operations (signed & unsigned).
-    *   **Writeback (WB):** Selects final destination register data (ALU, Memory Read, or PC + 4).
+    *   **Fetch (IF):** Implements program counter (PC) logic with pipeline registers, stalling, and branch/jump flushes. Instantiates `riscv_instruction_mem.sv`.
+    *   **Decode (ID):** Houses instruction decoding, immediate extensions, register file reads, and pipeline control signals. Instantiates `riscv_register_file.sv`, `riscv_control_unit.sv`, and `riscv_extend.sv`.
+    *   **Execute (EX):** Contains the ALU, PC target calculators, and input bypass muxes. Instantiates `riscv_alu.sv` and `riscv_pc_target.sv`.
+    *   **Memory (MEM):** Interchanges data with the RAM unit. Supports half-word, byte, and word operations (signed & unsigned). Instantiates `riscv_data_mem.sv`.
+    *   **Writeback (WB):** Selects final destination register data (ALU, Memory Read, or PC + 4) via `riscv_mux_3_1.sv`.
 *   **Register File:** $32 \times 32$-bit register array. Write-on-falling-edge (negedge) enables same-cycle bypassing, and `x0` is hardwired to zero.
 
 ### ⚡ Hazard Management
-*   **Data Hazard Resolution:** Implements forwarding from the Memory (MEM) and Writeback (WB) stages to the Execution (EX) stage, eliminating stalls for RAW hazards.
+*   **Data Hazard Resolution:** Implements forwarding from the Memory (MEM) and Writeback (WB) stages to the Execution (EX) stage, eliminating stalls for RAW hazards. Controlled by `riscv_hazard_unit.sv`.
 *   **Load-Use Stall Logic:** Detects back-to-back Load-to-Use hazards, automatically stalling the Fetch and Decode stages while flushing the Execute stage.
 *   **Control Hazard Resolution:** Automatically flushes instruction registers in Fetch/Decode on branch mispredictions or jumps, preventing speculative execution errors.
 
 ### 🛡️ OS & Microkernel Foundations
-*   **CSR Unit:** Houses foundational control and status registers (`mstatus`, `mtvec`, `mepc`, `mcause`).
+*   **CSR Unit:** Houses foundational control and status registers (`mstatus`, `mtvec`, `mepc`, `mcause`). Defined in `riscv_csr_unit.sv`.
 *   **Trap Handling:** Implements hardware-driven exception redirection and recovery (`ecall`, `mret` routines) supporting future microkernel scheduling and context switching.
 
 ---
@@ -38,29 +38,29 @@ graph TD
     classDef haz fill:#991b1b,stroke:#ef4444,stroke-width:2px,color:#f8fafc;
 
     subgraph Pipeline Stages
-        IF[Instruction Fetch Stage]:::stage
-        ID[Instruction Decode Stage]:::stage
-        EX[Execute Stage]:::stage
-        MEM[Memory Stage]:::stage
-        WB[Writeback Stage]:::stage
+        IF[riscv_fetch_stage]:::stage
+        ID[riscv_decode_stage]:::stage
+        EX[riscv_execute_stage]:::stage
+        MEM[riscv_memory_stage]:::stage
+        WB[Writeback Logic]:::stage
     end
 
     subgraph Storage & Execution Units
-        IMEM[Instruction Memory]:::mem
-        RF[Register File]:::mem
-        ALU[Arithmetic Logic Unit]:::mem
-        DMEM[Data Memory]:::mem
-        CSR[Control Status Register Unit]:::mem
+        IMEM[riscv_instruction_mem]:::mem
+        RF[riscv_register_file]:::mem
+        ALU[riscv_alu]:::mem
+        DMEM[riscv_data_mem]:::mem
+        CSR[riscv_csr_unit]:::mem
     end
 
     subgraph Pipeline Control
-        CU[Control Unit]:::ctrl
-        HU[Hazard Unit]:::haz
+        CU[riscv_control_unit]:::ctrl
+        HU[riscv_hazard_unit]:::haz
     end
 
     %% Interconnection Logic %%
     IF -->|Address PC| IMEM
-    IMEM -->|InstrF| ID
+    IMEM -->|InstrD| ID
     ID -->|Read Registers rs1/rs2| RF
     ID -->|Decoded Logic| CU
     CU -->|Control Signals| EX
@@ -93,24 +93,26 @@ RISCV-MicroKernel-Architecture/
 │   └── riscv-privileged.pdf
 ├── rtl/
 │   └── RV32I/                  # Core Hardware Logic Modules (SystemVerilog)
-│       ├── PCTarget.sv         # Branch & jump destination calculation
-│       ├── alu.sv              # 32-bit ALU engine
-│       ├── control_unit.sv     # Instruction opcode & funct decoder
-│       ├── csr_unit.sv         # CSR storage & privilege control
-│       ├── data_mem.sv         # Byte-addressable RAM unit
-│       ├── eddd.txt            # RV32I instruction mapping index
-│       ├── extend.sv           # Immediate generation module
-│       ├── hazard_unit.sv      # Forwarding & stall controller
-│       ├── insruction_mem.sv   # Bootable ROM wrapper (uses $readmemh)
-│       ├── mux_3_1.sv          # 3-to-1 data multiplexer
-│       ├── pcSrc_controller.sv # Branch validation resolver
-│       ├── register_file.sv    # Dual-read single-write register array
-│       ├── stg1_new_fetch.sv   # Stage 1: Instruction Fetch (IF)
-│       ├── stg2_decode.sv      # Stage 2: Instruction Decode (ID)
-│       ├── stg3_excute.sv      # Stage 3: Instruction Execute (EX)
-│       ├── stg4_memory.sv      # Stage 4: Data Memory Stage (MEM)
-│       ├── top_pipeline.sv     # Processor datapath wrapper (DUT)
-│       └── top_tb.sv           # Cycle-by-cycle debugger testbench
+│       ├── riscv_pc_target.sv         # Branch & jump destination calculation
+│       ├── riscv_alu.sv               # 32-bit ALU engine
+│       ├── riscv_control_unit.sv      # Instruction opcode & funct decoder
+│       ├── riscv_csr_unit.sv          # CSR storage & privilege control
+│       ├── riscv_data_mem.sv          # Byte-addressable RAM unit
+│       ├── riscv_instruction_table.txt # RV32I instruction mapping index (renamed from eddd.txt)
+│       ├── riscv_extend.sv            # Immediate generation module
+│       ├── riscv_hazard_unit.sv       # Forwarding & stall controller
+│       ├── riscv_instruction_mem.sv   # Bootable ROM wrapper (uses $readmemh)
+│       ├── riscv_mux_3_1.sv           # 3-to-1 data multiplexer
+│       ├── riscv_pc_src_controller.sv  # Branch validation resolver
+│       ├── riscv_register_file.sv     # Dual-read single-write register array
+│       ├── riscv_fetch_stage.sv       # Stage 1: Instruction Fetch (IF)
+│       ├── riscv_decode_stage.sv      # Stage 2: Instruction Decode (ID)
+│       ├── riscv_execute_stage.sv     # Stage 3: Instruction Execute (EX)
+│       ├── riscv_memory_stage.sv      # Stage 4: Data Memory Stage (MEM)
+│       ├── riscv_test.s               # Pipelined processor assembly workload
+│       ├── riscv_top_pipeline.sv      # Processor datapath wrapper (DUT)
+│       ├── riscv_top_tb.sv            # Cycle-by-cycle debugger testbench
+│       └── run.do                     # ModelSim compilation and tb script
 ├── sim/                        # Verification scripts (ModelSim/QuestaSim)
 │   ├── run.do                  # Complete pipeline test run configuration
 │   ├── run_ctrl.do             # Control unit verification script
@@ -204,19 +206,19 @@ Cycle |      FETCH (PCF / InstrF)      |    DECODE (InstrD)   |                 
 Below are direct references to key modules in the codebase for ease of access:
 
 ### ⚡ RTL Hardware Files
-*   [top_pipeline.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/top_pipeline.sv): Pipelined processor datapath wrapper.
-*   [stg1_new_fetch.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/stg1_new_fetch.sv): Stage 1 Instruction Fetch module.
-*   [stg2_decode.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/stg2_decode.sv): Stage 2 Instruction Decode module.
-*   [stg3_excute.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/stg3_excute.sv): Stage 3 Execution module.
-*   [stg4_memory.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/stg4_memory.sv): Stage 4 Memory control module.
-*   [control_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/control_unit.sv): Core instruction control decoder.
-*   [alu.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/alu.sv): Core arithmetic logic unit.
-*   [hazard_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/hazard_unit.sv): Pipeline hazard processor controller.
-*   [csr_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/csr_unit.sv): CSR register array and trap routing logic.
-*   [data_mem.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/data_mem.sv): Byte-addressable RAM representation.
-*   [insruction_mem.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/insruction_mem.sv): Instruction ROM wrapper.
-*   [register_file.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/register_file.sv): Main register file.
-*   [top_tb.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/top_tb.sv): Main debugging testbench wrapper.
+*   [riscv_top_pipeline.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_pipeline.sv): Pipelined processor datapath wrapper.
+*   [riscv_fetch_stage.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_fetch_stage.sv): Stage 1 Instruction Fetch module.
+*   [riscv_decode_stage.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_decode_stage.sv): Stage 2 Instruction Decode module.
+*   [riscv_execute_stage.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_execute_stage.sv): Stage 3 Execution module.
+*   [riscv_memory_stage.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_memory_stage.sv): Stage 4 Memory control module.
+*   [riscv_control_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_control_unit.sv): Core instruction control decoder.
+*   [riscv_alu.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_alu.sv): Core arithmetic logic unit.
+*   [riscv_hazard_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_hazard_unit.sv): Pipeline hazard processor controller.
+*   [riscv_csr_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_csr_unit.sv): CSR register array and trap routing logic.
+*   [riscv_data_mem.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_data_mem.sv): Byte-addressable RAM representation.
+*   [riscv_instruction_mem.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_instruction_mem.sv): Instruction ROM wrapper.
+*   [riscv_register_file.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_register_file.sv): Main register file.
+*   [riscv_top_tb.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_tb.sv): Main debugging testbench wrapper.
 
 ### 💿 Software Files
 *   [Makefile](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/Makefile): GNU Makefile for code builds.

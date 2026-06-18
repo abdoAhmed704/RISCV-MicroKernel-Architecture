@@ -1,11 +1,9 @@
 vlib work
-vlog control_unit.sv
-vlog control_unit_tb.sv
+vlog ../rtl/RV32I/riscv_control_unit.sv
 
-
-vsim -voptargs=+acc work.control_unit_tb
-
-add wave *
-
-run -all
-
+# Note: The testbench control_unit_tb.sv is not in this repository.
+# To simulate the control unit separately, create a testbench and run:
+# vlog ../rtl/RV32I/riscv_control_unit_tb.sv
+# vsim -voptargs=+acc work.riscv_control_unit_tb
+# add wave *
+# run -all
