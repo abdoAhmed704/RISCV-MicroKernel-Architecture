@@ -15,8 +15,8 @@ OBJDUMP = $(CROSS)objdump
 #   -nostdlib      → no C standard library
 #   -ffreestanding → freestanding (no OS)
 #   -O1            → optimize to reduce stack usage
-CFLAGS  = -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -O1 -Wall
-ASFLAGS = -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib
+CFLAGS  = -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib -O1 -Wall
+ASFLAGS = -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib
 LDFLAGS = -T linker.ld -nostdlib -m elf32lriscv
 
 OBJS    = build/start.o build/main.o

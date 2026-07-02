@@ -1,6 +1,6 @@
 module riscv_execute_stage (
     input logic clk,
-    input logic rst_n,
+    input logic rst_n, CLR,
     input logic [31:0] PCE,
     input logic [31:0] PCPlus4E,
     input logic RegWriteE,
@@ -17,6 +17,19 @@ module riscv_execute_stage (
     input logic [1:0] ImmPassE,
     input logic inst_typeE,
     input logic jalr_pcE,
+    input logic [31:0] instrE,
+    input logic [1:0]  csr_opE,
+    input logic [11:0] csr_addrE,
+    input logic        csr_wenE,
+    input logic [4:0]  csr_uimmE,
+    input logic        csr_imm_selE,
+    input logic        illegal_instr_id_E,
+    input logic        ecallE,
+    input logic        ebreakE,
+    input logic        mretE,
+    input logic        sretE,
+    input logic        is_system_instrE,
+    input logic        PCSrcE,
 
     output logic  RegWriteM,
     output logic  [1:0] ResultSrcM,
@@ -27,7 +40,21 @@ module riscv_execute_stage (
     output logic  [31:0] PCTargetE_new,
     output logic  [31:0] PCPlus4M,
     output logic ZeroE,
-    output logic [2:0] funct3M
+    output logic [2:0] funct3M,
+    output logic [31:0] PCM,
+    output logic [31:0] instrM,
+    output logic [1:0]  csr_opM,
+    output logic [11:0] csr_addrM,
+    output logic        csr_wenM,
+    output logic [31:0] csr_srcM,
+    output logic        illegal_instr_id_M,
+    output logic        illegal_instr_exe_M,
+    output logic        instr_addr_misaligned_M,
+    output logic        ecallM,
+    output logic        ebreakM,
+    output logic        mretM,
+    output logic        sretM,
+    output logic        is_system_instrM
 );
 
     wire [31:0] SrcBE;
@@ -61,9 +88,12 @@ module riscv_execute_stage (
     
     assign PCTargetE_new = (jalr_pcE)? ALUResultE: PCTargetE;
 
+    logic instr_addr_misaligned_E;
+    assign instr_addr_misaligned_E = PCSrcE && (PCTargetE_new[1:0] != 2'b00);
+
     // Pipeline register for the execute stage to memory stage
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (!rst_n || CLR) begin
             RegWriteM  <= 0;
             ResultSrcM <= 0;
             MemWriteM  <= 0;
@@ -72,6 +102,20 @@ module riscv_execute_stage (
             PCPlus4M   <= 0;
             funct3M    <= 0;
             ALUResultM <= 0;
+            PCM        <= 0;
+            instrM     <= 0;
+            csr_opM    <= 0;
+            csr_addrM  <= 0;
+            csr_wenM   <= 0;
+            csr_srcM   <= 0;
+            illegal_instr_id_M   <= 0;
+            illegal_instr_exe_M  <= 0;
+            instr_addr_misaligned_M <= 0;
+            ecallM     <= 0;
+            ebreakM    <= 0;
+            mretM      <= 0;
+            sretM      <= 0;
+            is_system_instrM <= 0;
         end else begin
             RegWriteM <= RegWriteE; // Pass register write enable signal to memory stage
             ResultSrcM <= ResultSrcE; // Pass ALU result source control signal to memory stage
@@ -80,6 +124,20 @@ module riscv_execute_stage (
             RdM <= RdE; // Pass destination register address to memory stage
             PCPlus4M <= PCPlus4E; // Pass PC + 4 to memory stage
             funct3M <= funct3E;
+            PCM        <= PCE;
+            instrM     <= instrE;
+            csr_opM    <= csr_opE;
+            csr_addrM  <= csr_addrE;
+            csr_wenM   <= csr_wenE;
+            csr_srcM   <= csr_imm_selE ? {27'b0, csr_uimmE} : RD1E;
+            illegal_instr_id_M   <= illegal_instr_id_E;
+            illegal_instr_exe_M  <= 1'b0; // No execute-stage illegal instruction logic here
+            instr_addr_misaligned_M <= instr_addr_misaligned_E;
+            ecallM     <= ecallE;
+            ebreakM    <= ebreakE;
+            mretM      <= mretE;
+            sretM      <= sretE;
+            is_system_instrM <= is_system_instrE;
 
             case(ImmPassE)
                 2'b01: ALUResultM <= ImmExtE;

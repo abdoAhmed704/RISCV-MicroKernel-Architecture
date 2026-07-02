@@ -2,9 +2,15 @@ module riscv_top_tb();
 
 logic clk, reset_n; 
 logic [31:0] result;
+logic        irq_ack;   // HIGH for one cycle when core accepts an interrupt
 
 // instantiate DUT
-riscv_top_pipeline top_ins (.clk(clk), .rst_n(reset_n), .result(result));
+riscv_top_pipeline top_ins (
+    .clk(clk),
+    .rst_n(reset_n),
+    .result(result),
+    .irq_ack(irq_ack)
+);
 
 // ================= CLOCK =================
 initial begin
@@ -18,7 +24,7 @@ initial begin
     repeat(2) @(negedge clk);
     reset_n = 1;
 
-    repeat(150) @(negedge clk);
+    repeat(250) @(negedge clk);
     $stop;
 end
 
@@ -35,35 +41,18 @@ int cycle = 0;
 always @(posedge clk) begin
     cycle++;
 
-    $display(" (PCSrcE=%b, target_taken=%b, Branch=%b)  ====  %3d   |       %h / %h        |     %h    |         RD1=%h RD2=%h ALU=%h S=%h B=%h J=%h      | %h W=%b | Rd=%0d W=%b Res=%h", //   funct7_5E=%b | funct_7_5=%b | funct3M=%b
-    
-    // ===== FETCH =====
-    top_ins.PCSrcE,
-    top_ins.target_taken,
-    top_ins.BranchE,
-    cycle,
-    top_ins.new_fet.PCF,
-    top_ins.new_fet.instrF,
-
-    // ===== DECODE =====
-    top_ins.instrD,
-
-    // ===== EXECUTE =====
-    top_ins.RD1E,
-    top_ins.RD2E,
-    top_ins.execute_stage_inst.ALUResultE,  // Fixed internal name reference to execute_stage_inst
-    top_ins.ALUSrcE,
-    top_ins.BranchE,
-    top_ins.jumpE,
-
-    // ===== MEMORY =====
-    top_ins.ALUResultM,
-    top_ins.MemWriteM,
-
-    // ===== WRITEBACK =====
-    top_ins.RdW,
-    top_ins.RegWriteW,
-    result
+    $display("Cycle %3d | PC=%h | Mode=%b | mcause=%h | mepc=%h | scause=%h | sepc=%h | trap=%b | irq_ack=%b | RdW=%0d Res=%h",
+        cycle,
+        top_ins.new_fet.PCF,
+        top_ins.csr_unit.priv_mode_q,
+        top_ins.csr_unit.mcause_q,
+        top_ins.csr_unit.mepc_q,
+        top_ins.csr_unit.scause_q,
+        top_ins.csr_unit.sepc_q,
+        top_ins.csr_unit.take_trap,
+        irq_ack,
+        top_ins.RdW,
+        result
     );
 end
 

@@ -7,14 +7,14 @@ set "OBJDUMP=%ToolchainPath%\riscv-none-elf-objdump.exe"
 if not exist build mkdir build
 
 echo Compiling start.s...
-"%CC%" -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -c src\start.s -o build\start.o
+"%CC%" -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib -c src\start.s -o build\start.o
 if %ERRORLEVEL% neq 0 (
     echo Failed to compile start.s
     exit /b %ERRORLEVEL%
 )
 
 echo Compiling main.c...
-"%CC%" -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -O1 -c src\main.c -o build\main.o
+"%CC%" -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib -O1 -c src\main.c -o build\main.o
 if %ERRORLEVEL% neq 0 (
     echo Failed to compile main.c
     exit /b %ERRORLEVEL%

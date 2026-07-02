@@ -53,7 +53,7 @@ module riscv_control_unit (
             end
             
             7'b1100011: begin // B-type conditional branches
-                ResultSrc  = 2'bxx; 
+                ResultSrc  = 2'b00; 
                 ImmSrc     = 3'b010; 
                 ALUOp      = 2'b01; 
                 Branch     = 1'b1;
@@ -69,7 +69,7 @@ module riscv_control_unit (
                 ALUSrc     = 1'b1; 
                 ImmSrc     = 3'b001; 
                 MemWrite   = 1'b1; 
-                ResultSrc  = 2'bxx; 
+                ResultSrc  = 2'b00; 
             end
             
             7'b1101111: begin // J-type Unconditional Jump (JAL)
@@ -108,7 +108,8 @@ module riscv_control_unit (
                 ALUSrc     = 1'bx;
                 ImmSrc     = 3'b0xx;
                 ALUOp      = 2'bxx;
-                ResultSrc  = 2'bxx;
+                RegWrite   = (funct3 != 3'b000);
+                ResultSrc  = (funct3 != 3'b000) ? 2'b11 : 2'b00;
             end
 
             7'b0001111: begin // FENCE instruction

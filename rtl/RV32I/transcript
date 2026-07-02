@@ -1,0 +1,551 @@
+# vsim -c -voptargs="+acc" work.riscv_top_tb -do "run -all; quit" 
+# Start time: 18:14:44 on Jul 02,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt1
+# //  Questa Sim-64
+# //  Version 2021.1 win64 Jan 19 2021
+# //
+# //  Copyright 1991-2021 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.riscv_top_tb(fast)
+# Loading work.riscv_top_pipeline(fast)
+# Loading work.riscv_hazard_unit(fast)
+# Loading work.riscv_fetch_stage(fast)
+# Loading work.riscv_instruction_mem(fast)
+# Loading work.riscv_decode_stage(fast)
+# Loading work.riscv_register_file(fast)
+# Loading work.riscv_control_unit(fast)
+# Loading work.riscv_extend(fast)
+# Loading work.riscv_mux_3_1(fast)
+# Loading work.riscv_execute_stage(fast)
+# Loading work.riscv_alu(fast)
+# Loading work.riscv_pc_target(fast)
+# Loading work.riscv_memory_stage(fast)
+# Loading work.riscv_data_mem(fast)
+# Loading work.riscv_csr_unit(fast)
+# Loading work.riscv_mux_4_1(fast)
+# Loading work.riscv_pc_src_controller(fast)
+# run -all
+# 
+# ================ PIPELINE DEBUG =================
+# Cycle |      FETCH (PCF / InstrF)      |    DECODE (InstrD)   |                  EXECUTE (RD1/RD2/ALU/CTRL)                  |   MEMORY        |   WRITEBACK
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# PC = 00000000, ImmExt = 00000000
+# Cycle   1 | PC=00000000 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# Cycle   2 | PC=00000000 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# Cycle   3 | PC=00000000 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# Cycle   4 | PC=00000004 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000000, ImmExt = 00000001
+# Cycle   5 | PC=00000008 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000004, ImmExt = 00000055
+# Cycle   6 | PC=0000000c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000008, ImmExt = 00000000
+# Cycle   7 | PC=00000010 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=31 Res=00000001
+# PC = 0000000c, ImmExt = 00000000
+# Cycle   8 | PC=00000014 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=1 Res=00000055
+# PC = 00000010, ImmExt = 0000000f
+# Cycle   9 | PC=00000018 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=2 Res=00000000
+# PC = 00000014, ImmExt = 00000000
+# Cycle  10 | PC=0000001c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=3 Res=00000055
+# PC = 00000000, ImmExt = 00000000
+# Cycle  11 | PC=0000001c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=4 Res=0000000f
+# PC = 00000018, ImmExt = 00000000
+# Cycle  12 | PC=00000020 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000001c, ImmExt = 00000000
+# Cycle  13 | PC=00000024 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000020, ImmExt = 00000005
+# Cycle  14 | PC=00000028 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=5 Res=00000000
+# PC = 00000024, ImmExt = 00000000
+# Cycle  15 | PC=0000002c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=6 Res=0000000f
+# PC = 00000028, ImmExt = 00000000
+# Cycle  16 | PC=00000030 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=7 Res=00000005
+# PC = 0000002c, ImmExt = 00000000
+# Cycle  17 | PC=00000034 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=8 Res=0000000f
+# PC = 00000000, ImmExt = 00000000
+# Cycle  18 | PC=00000034 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=9 Res=0000000a
+# PC = 00000030, ImmExt = 00000000
+# Cycle  19 | PC=00000038 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=0000000a
+# PC = 00000034, ImmExt = 00000000
+# Cycle  20 | PC=0000003c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000000, ImmExt = 00000000
+# Cycle  21 | PC=0000003c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=10 Res=0000001f
+# PC = 00000038, ImmExt = 00000000
+# Cycle  22 | PC=00000040 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=0000001f
+# PC = 00000000, ImmExt = 00000000
+# Cycle  23 | PC=00000040 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000003c, ImmExt = 00000000
+# Cycle  24 | PC=00000044 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=0000001f
+# PC = 00000040, ImmExt = 00000000
+# Cycle  25 | PC=00000048 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000044, ImmExt = 00000000
+# Cycle  26 | PC=0000004c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=11 Res=00000000
+# PC = 00000000, ImmExt = 00000000
+# Cycle  27 | PC=0000004c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=12 Res=00000010
+# PC = 00000048, ImmExt = 00000000
+# Cycle  28 | PC=00000050 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000010
+# PC = 0000004c, ImmExt = 00000000
+# Cycle  29 | PC=00000054 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000050, ImmExt = 00000000
+# Cycle  30 | PC=00000058 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=13 Res=00000000
+# PC = 00000054, ImmExt = 00000000
+# Cycle  31 | PC=0000005c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=14 Res=00000000
+# PC = 00000058, ImmExt = 00000000
+# Cycle  32 | PC=00000060 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=15 Res=00000000
+# PC = 0000005c, ImmExt = 00000000
+# Cycle  33 | PC=00000064 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=16 Res=40041105
+# PC = 00000060, ImmExt = 00000000
+# Cycle  34 | PC=00000068 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=17 Res=0000001e
+# PC = 00000064, ImmExt = 00000000
+# Cycle  35 | PC=0000006c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000068, ImmExt = 00000000
+# Cycle  36 | PC=00000070 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000006c, ImmExt = 00000002
+# Cycle  37 | PC=00000074 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000070, ImmExt = 00000000
+# Cycle  38 | PC=00000078 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=18 Res=00000022
+# PC = 00000000, ImmExt = 00000000
+# Cycle  39 | PC=00000078 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=31 Res=00000002
+# ** Warning: (vsim-8315) No condition is true in the unique/priority if/case statement.
+#    Time: 385 ns  Iteration: 3  Process: /riscv_top_tb/top_ins/mux_w/#implicit#unique__10 File: riscv_mux_4_1.sv Line: 10
+# Cycle  40 | PC=0000007c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000002
+# PC = 00000078, ImmExt = 00000000
+# Cycle  41 | PC=00000080 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000007c, ImmExt = 00000000
+# Cycle  42 | PC=00000084 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000080, ImmExt = 00000000
+# Cycle  43 | PC=00000088 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000084, ImmExt = 00000000
+# Cycle  44 | PC=0000008c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000088, ImmExt = 00000000
+# Cycle  45 | PC=00000090 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000008c, ImmExt = 00000000
+# Cycle  46 | PC=00000094 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000090, ImmExt = 00000000
+# Cycle  47 | PC=00000098 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000094, ImmExt = 00000000
+# Cycle  48 | PC=0000009c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000098, ImmExt = 00000000
+# Cycle  49 | PC=000000a0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000009c, ImmExt = 00000000
+# Cycle  50 | PC=000000a4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000a0, ImmExt = 00000000
+# Cycle  51 | PC=000000a8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000a4, ImmExt = 00000000
+# Cycle  52 | PC=000000ac | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000a8, ImmExt = 00000000
+# Cycle  53 | PC=000000b0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000ac, ImmExt = 00000000
+# Cycle  54 | PC=000000b4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000b0, ImmExt = 00000000
+# Cycle  55 | PC=000000b8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000b4, ImmExt = 00000000
+# Cycle  56 | PC=000000bc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000b8, ImmExt = 00000000
+# Cycle  57 | PC=000000c0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000bc, ImmExt = 00000000
+# Cycle  58 | PC=000000c4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000c0, ImmExt = 00000000
+# Cycle  59 | PC=000000c8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000c4, ImmExt = 00000000
+# Cycle  60 | PC=000000cc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000c8, ImmExt = 00000000
+# Cycle  61 | PC=000000d0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000cc, ImmExt = 00000000
+# Cycle  62 | PC=000000d4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000d0, ImmExt = 00000000
+# Cycle  63 | PC=000000d8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000d4, ImmExt = 00000000
+# Cycle  64 | PC=000000dc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000d8, ImmExt = 00000000
+# Cycle  65 | PC=000000e0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000dc, ImmExt = 00000000
+# Cycle  66 | PC=000000e4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000e0, ImmExt = 00000000
+# Cycle  67 | PC=000000e8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000e4, ImmExt = 00000000
+# Cycle  68 | PC=000000ec | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000e8, ImmExt = 00000000
+# Cycle  69 | PC=000000f0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000ec, ImmExt = 00000000
+# Cycle  70 | PC=000000f4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000f0, ImmExt = 00000000
+# Cycle  71 | PC=000000f8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000f4, ImmExt = 00000000
+# Cycle  72 | PC=000000fc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000f8, ImmExt = 00000000
+# Cycle  73 | PC=00000100 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000000fc, ImmExt = 00000000
+# Cycle  74 | PC=00000104 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000100, ImmExt = 00000000
+# Cycle  75 | PC=00000108 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000104, ImmExt = 00000000
+# Cycle  76 | PC=0000010c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000108, ImmExt = 00000000
+# Cycle  77 | PC=00000110 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000010c, ImmExt = 00000000
+# Cycle  78 | PC=00000114 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000110, ImmExt = 00000000
+# Cycle  79 | PC=00000118 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000114, ImmExt = 00000000
+# Cycle  80 | PC=0000011c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000118, ImmExt = 00000000
+# Cycle  81 | PC=00000120 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000011c, ImmExt = 00000000
+# Cycle  82 | PC=00000124 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000120, ImmExt = 00000000
+# Cycle  83 | PC=00000128 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000124, ImmExt = 00000000
+# Cycle  84 | PC=0000012c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000128, ImmExt = 00000000
+# Cycle  85 | PC=00000130 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000012c, ImmExt = 00000000
+# Cycle  86 | PC=00000134 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000130, ImmExt = 00000000
+# Cycle  87 | PC=00000138 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000134, ImmExt = 00000000
+# Cycle  88 | PC=0000013c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000138, ImmExt = 00000000
+# Cycle  89 | PC=00000140 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000013c, ImmExt = 00000000
+# Cycle  90 | PC=00000144 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000140, ImmExt = 00000000
+# Cycle  91 | PC=00000148 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000144, ImmExt = 00000000
+# Cycle  92 | PC=0000014c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000148, ImmExt = 00000000
+# Cycle  93 | PC=00000150 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000014c, ImmExt = 00000000
+# Cycle  94 | PC=00000154 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000150, ImmExt = 00000000
+# Cycle  95 | PC=00000158 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000154, ImmExt = 00000000
+# Cycle  96 | PC=0000015c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000158, ImmExt = 00000000
+# Cycle  97 | PC=00000160 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000015c, ImmExt = 00000000
+# Cycle  98 | PC=00000164 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000160, ImmExt = 00000000
+# Cycle  99 | PC=00000168 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000164, ImmExt = 00000000
+# Cycle 100 | PC=0000016c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000168, ImmExt = 00000000
+# Cycle 101 | PC=00000170 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000016c, ImmExt = 00000000
+# Cycle 102 | PC=00000174 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000170, ImmExt = 00000000
+# Cycle 103 | PC=00000178 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000174, ImmExt = 00000000
+# Cycle 104 | PC=0000017c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000178, ImmExt = 00000000
+# Cycle 105 | PC=00000180 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000017c, ImmExt = 00000000
+# Cycle 106 | PC=00000184 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000180, ImmExt = 00000000
+# Cycle 107 | PC=00000188 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000184, ImmExt = 00000000
+# Cycle 108 | PC=0000018c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000188, ImmExt = 00000000
+# Cycle 109 | PC=00000190 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000018c, ImmExt = 00000000
+# Cycle 110 | PC=00000194 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000190, ImmExt = 00000000
+# Cycle 111 | PC=00000198 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000194, ImmExt = 00000000
+# Cycle 112 | PC=0000019c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000198, ImmExt = 00000000
+# Cycle 113 | PC=000001a0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000019c, ImmExt = 00000000
+# Cycle 114 | PC=000001a4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001a0, ImmExt = 00000000
+# Cycle 115 | PC=000001a8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001a4, ImmExt = 00000000
+# Cycle 116 | PC=000001ac | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001a8, ImmExt = 00000000
+# Cycle 117 | PC=000001b0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001ac, ImmExt = 00000000
+# Cycle 118 | PC=000001b4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001b0, ImmExt = 00000000
+# Cycle 119 | PC=000001b8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001b4, ImmExt = 00000000
+# Cycle 120 | PC=000001bc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001b8, ImmExt = 00000000
+# Cycle 121 | PC=000001c0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001bc, ImmExt = 00000000
+# Cycle 122 | PC=000001c4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001c0, ImmExt = 00000000
+# Cycle 123 | PC=000001c8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001c4, ImmExt = 00000000
+# Cycle 124 | PC=000001cc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001c8, ImmExt = 00000000
+# Cycle 125 | PC=000001d0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001cc, ImmExt = 00000000
+# Cycle 126 | PC=000001d4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001d0, ImmExt = 00000000
+# Cycle 127 | PC=000001d8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001d4, ImmExt = 00000000
+# Cycle 128 | PC=000001dc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001d8, ImmExt = 00000000
+# Cycle 129 | PC=000001e0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001dc, ImmExt = 00000000
+# Cycle 130 | PC=000001e4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001e0, ImmExt = 00000000
+# Cycle 131 | PC=000001e8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001e4, ImmExt = 00000000
+# Cycle 132 | PC=000001ec | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001e8, ImmExt = 00000000
+# Cycle 133 | PC=000001f0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001ec, ImmExt = 00000000
+# Cycle 134 | PC=000001f4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001f0, ImmExt = 00000000
+# Cycle 135 | PC=000001f8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001f4, ImmExt = 00000000
+# Cycle 136 | PC=000001fc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001f8, ImmExt = 00000000
+# Cycle 137 | PC=00000200 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000001fc, ImmExt = 00000000
+# Cycle 138 | PC=00000204 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000200, ImmExt = 00000000
+# Cycle 139 | PC=00000208 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000204, ImmExt = 00000000
+# Cycle 140 | PC=0000020c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000208, ImmExt = 00000000
+# Cycle 141 | PC=00000210 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000020c, ImmExt = 00000000
+# Cycle 142 | PC=00000214 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000210, ImmExt = 00000000
+# Cycle 143 | PC=00000218 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000214, ImmExt = 00000000
+# Cycle 144 | PC=0000021c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000218, ImmExt = 00000000
+# Cycle 145 | PC=00000220 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000021c, ImmExt = 00000000
+# Cycle 146 | PC=00000224 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000220, ImmExt = 00000000
+# Cycle 147 | PC=00000228 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000224, ImmExt = 00000000
+# Cycle 148 | PC=0000022c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000228, ImmExt = 00000000
+# Cycle 149 | PC=00000230 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000022c, ImmExt = 00000000
+# Cycle 150 | PC=00000234 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000230, ImmExt = 00000000
+# Cycle 151 | PC=00000238 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000234, ImmExt = 00000000
+# Cycle 152 | PC=0000023c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000238, ImmExt = 00000000
+# Cycle 153 | PC=00000240 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000023c, ImmExt = 00000000
+# Cycle 154 | PC=00000244 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000240, ImmExt = 00000000
+# Cycle 155 | PC=00000248 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000244, ImmExt = 00000000
+# Cycle 156 | PC=0000024c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000248, ImmExt = 00000000
+# Cycle 157 | PC=00000250 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000024c, ImmExt = 00000000
+# Cycle 158 | PC=00000254 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000250, ImmExt = 00000000
+# Cycle 159 | PC=00000258 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000254, ImmExt = 00000000
+# Cycle 160 | PC=0000025c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000258, ImmExt = 00000000
+# Cycle 161 | PC=00000260 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000025c, ImmExt = 00000000
+# Cycle 162 | PC=00000264 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000260, ImmExt = 00000000
+# Cycle 163 | PC=00000268 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000264, ImmExt = 00000000
+# Cycle 164 | PC=0000026c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000268, ImmExt = 00000000
+# Cycle 165 | PC=00000270 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000026c, ImmExt = 00000000
+# Cycle 166 | PC=00000274 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000270, ImmExt = 00000000
+# Cycle 167 | PC=00000278 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000274, ImmExt = 00000000
+# Cycle 168 | PC=0000027c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000278, ImmExt = 00000000
+# Cycle 169 | PC=00000280 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000027c, ImmExt = 00000000
+# Cycle 170 | PC=00000284 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000280, ImmExt = 00000000
+# Cycle 171 | PC=00000288 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000284, ImmExt = 00000000
+# Cycle 172 | PC=0000028c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000288, ImmExt = 00000000
+# Cycle 173 | PC=00000290 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000028c, ImmExt = 00000000
+# Cycle 174 | PC=00000294 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000290, ImmExt = 00000000
+# Cycle 175 | PC=00000298 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000294, ImmExt = 00000000
+# Cycle 176 | PC=0000029c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000298, ImmExt = 00000000
+# Cycle 177 | PC=000002a0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000029c, ImmExt = 00000000
+# Cycle 178 | PC=000002a4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002a0, ImmExt = 00000000
+# Cycle 179 | PC=000002a8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002a4, ImmExt = 00000000
+# Cycle 180 | PC=000002ac | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002a8, ImmExt = 00000000
+# Cycle 181 | PC=000002b0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002ac, ImmExt = 00000000
+# Cycle 182 | PC=000002b4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002b0, ImmExt = 00000000
+# Cycle 183 | PC=000002b8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002b4, ImmExt = 00000000
+# Cycle 184 | PC=000002bc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002b8, ImmExt = 00000000
+# Cycle 185 | PC=000002c0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002bc, ImmExt = 00000000
+# Cycle 186 | PC=000002c4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002c0, ImmExt = 00000000
+# Cycle 187 | PC=000002c8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002c4, ImmExt = 00000000
+# Cycle 188 | PC=000002cc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002c8, ImmExt = 00000000
+# Cycle 189 | PC=000002d0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002cc, ImmExt = 00000000
+# Cycle 190 | PC=000002d4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002d0, ImmExt = 00000000
+# Cycle 191 | PC=000002d8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002d4, ImmExt = 00000000
+# Cycle 192 | PC=000002dc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002d8, ImmExt = 00000000
+# Cycle 193 | PC=000002e0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002dc, ImmExt = 00000000
+# Cycle 194 | PC=000002e4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002e0, ImmExt = 00000000
+# Cycle 195 | PC=000002e8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002e4, ImmExt = 00000000
+# Cycle 196 | PC=000002ec | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002e8, ImmExt = 00000000
+# Cycle 197 | PC=000002f0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002ec, ImmExt = 00000000
+# Cycle 198 | PC=000002f4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002f0, ImmExt = 00000000
+# Cycle 199 | PC=000002f8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002f4, ImmExt = 00000000
+# Cycle 200 | PC=000002fc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002f8, ImmExt = 00000000
+# Cycle 201 | PC=00000300 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000002fc, ImmExt = 00000000
+# Cycle 202 | PC=00000304 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000300, ImmExt = 00000000
+# Cycle 203 | PC=00000308 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000304, ImmExt = 00000000
+# Cycle 204 | PC=0000030c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000308, ImmExt = 00000000
+# Cycle 205 | PC=00000310 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000030c, ImmExt = 00000000
+# Cycle 206 | PC=00000314 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000310, ImmExt = 00000000
+# Cycle 207 | PC=00000318 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000314, ImmExt = 00000000
+# Cycle 208 | PC=0000031c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000318, ImmExt = 00000000
+# Cycle 209 | PC=00000320 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000031c, ImmExt = 00000000
+# Cycle 210 | PC=00000324 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000320, ImmExt = 00000000
+# Cycle 211 | PC=00000328 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000324, ImmExt = 00000000
+# Cycle 212 | PC=0000032c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000328, ImmExt = 00000000
+# Cycle 213 | PC=00000330 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000032c, ImmExt = 00000000
+# Cycle 214 | PC=00000334 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000330, ImmExt = 00000000
+# Cycle 215 | PC=00000338 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000334, ImmExt = 00000000
+# Cycle 216 | PC=0000033c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000338, ImmExt = 00000000
+# Cycle 217 | PC=00000340 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000033c, ImmExt = 00000000
+# Cycle 218 | PC=00000344 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000340, ImmExt = 00000000
+# Cycle 219 | PC=00000348 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000344, ImmExt = 00000000
+# Cycle 220 | PC=0000034c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000348, ImmExt = 00000000
+# Cycle 221 | PC=00000350 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000034c, ImmExt = 00000000
+# Cycle 222 | PC=00000354 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000350, ImmExt = 00000000
+# Cycle 223 | PC=00000358 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000354, ImmExt = 00000000
+# Cycle 224 | PC=0000035c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000358, ImmExt = 00000000
+# Cycle 225 | PC=00000360 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000035c, ImmExt = 00000000
+# Cycle 226 | PC=00000364 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000360, ImmExt = 00000000
+# Cycle 227 | PC=00000368 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000364, ImmExt = 00000000
+# Cycle 228 | PC=0000036c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000368, ImmExt = 00000000
+# Cycle 229 | PC=00000370 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000036c, ImmExt = 00000000
+# Cycle 230 | PC=00000374 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000370, ImmExt = 00000000
+# Cycle 231 | PC=00000378 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000374, ImmExt = 00000000
+# Cycle 232 | PC=0000037c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000378, ImmExt = 00000000
+# Cycle 233 | PC=00000380 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000037c, ImmExt = 00000000
+# Cycle 234 | PC=00000384 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000380, ImmExt = 00000000
+# Cycle 235 | PC=00000388 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000384, ImmExt = 00000000
+# Cycle 236 | PC=0000038c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000388, ImmExt = 00000000
+# Cycle 237 | PC=00000390 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000038c, ImmExt = 00000000
+# Cycle 238 | PC=00000394 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000390, ImmExt = 00000000
+# Cycle 239 | PC=00000398 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000394, ImmExt = 00000000
+# Cycle 240 | PC=0000039c | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 00000398, ImmExt = 00000000
+# Cycle 241 | PC=000003a0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 0000039c, ImmExt = 00000000
+# Cycle 242 | PC=000003a4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003a0, ImmExt = 00000000
+# Cycle 243 | PC=000003a8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003a4, ImmExt = 00000000
+# Cycle 244 | PC=000003ac | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003a8, ImmExt = 00000000
+# Cycle 245 | PC=000003b0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003ac, ImmExt = 00000000
+# Cycle 246 | PC=000003b4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003b0, ImmExt = 00000000
+# Cycle 247 | PC=000003b8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003b4, ImmExt = 00000000
+# Cycle 248 | PC=000003bc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003b8, ImmExt = 00000000
+# Cycle 249 | PC=000003c0 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003bc, ImmExt = 00000000
+# Cycle 250 | PC=000003c4 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003c0, ImmExt = 00000000
+# Cycle 251 | PC=000003c8 | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003c4, ImmExt = 00000000
+# Cycle 252 | PC=000003cc | Mode=11 | mcause=00000000 | mepc=00000000 | scause=00000000 | sepc=00000000 | trap=0 | irq_ack=0 | RdW=0 Res=00000000
+# PC = 000003c8, ImmExt = 00000000
+# ** Note: $stop    : riscv_top_tb.sv(28)
+#    Time: 2520 ns  Iteration: 1  Instance: /riscv_top_tb
+# Break in Module riscv_top_tb at riscv_top_tb.sv line 28
+# Stopped at riscv_top_tb.sv line 28
+#  quit
+# End time: 18:14:49 on Jul 02,2026, Elapsed time: 0:00:05
+# Errors: 0, Warnings: 1
