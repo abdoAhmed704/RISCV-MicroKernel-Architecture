@@ -241,10 +241,18 @@ static void clock_task(void)
     tick_count++;
 }
 
+#define PLATFORM_ADDR ((volatile unsigned int *)0x00003FFC)
+
 static void delay(void)
 {
     volatile unsigned int i;
-    for (i = 0; i < 200000u; i++) {
+    unsigned int limit = 1000u; // Responsive delay for Questa simulator hardware core
+    
+    if (*PLATFORM_ADDR == 0x454D554C) { // "EMUL" (web emulator)
+        limit = 200000u; // Larger delay for high-speed emulated CPU
+    }
+    
+    for (i = 0; i < limit; i++) {
         asm volatile ("nop");
     }
 }

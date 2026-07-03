@@ -2,7 +2,8 @@ module riscv_data_mem #(
     parameter DATA_WIDTH = 32, // Width of data
     parameter ADDR_WIDTH = 32, 
     parameter MEM_SIZE = 4096,
-    parameter UART_ADDR = 32'h00003FF0
+    parameter UART_ADDR = 32'h00003FF0,
+    parameter PLATFORM_ADDR = 32'h00003FFC
 )(
     input logic clk,
     input logic WriteEnable,
@@ -68,6 +69,9 @@ module riscv_data_mem #(
         if (Address == UART_ADDR) begin
             // Return cached UART byte (no file I/O here!)
             ReadData = {24'b0, uart_rx_cache};
+        end else if (Address == PLATFORM_ADDR) begin
+            // Return 'QUES' (0x51554553) for the hardware core in Questa
+            ReadData = 32'h51554553;
         end else begin
             case (funct3)
                 3'b000: begin // LOAD BYTE (signed)

@@ -439,6 +439,9 @@ function read32(addr) {
     }
     return 0;
   }
+  if (addr === 0x00003ffc) {
+    return 0x454D554C; // 'EMUL'
+  }
   if (addr + 3 >= MEM_SIZE) return 0;
   return ram[addr] | (ram[addr+1] << 8) | (ram[addr+2] << 16) | (ram[addr+3] << 24);
 }
