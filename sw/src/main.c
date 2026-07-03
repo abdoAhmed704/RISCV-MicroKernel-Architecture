@@ -246,7 +246,7 @@ static void clock_task(void)
 static void delay(void)
 {
     volatile unsigned int i;
-    unsigned int limit = 1000u; // Responsive delay for Questa simulator hardware core
+    unsigned int limit = 0u; // Run at maximum simulator speed (no artificial delay in Questa)
     
     if (*PLATFORM_ADDR == 0x454D554C) { // "EMUL" (web emulator)
         limit = 200000u; // Larger delay for high-speed emulated CPU
