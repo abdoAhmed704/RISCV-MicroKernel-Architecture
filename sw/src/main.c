@@ -1,77 +1,267 @@
-volatile int m_trap_occurred = 0;
-volatile int s_trap_occurred = 0;
-volatile int s_mode_entered = 0;
+/* Direct MMIO — bypass ecall/trap overhead entirely */
+#define UART_ADDR ((volatile unsigned char *)0x00003FF0)
+
+#define BOARD_W 20
+#define BOARD_H 10
+#define MAX_SNAKE 64
+
+volatile int m_trap_occurred;
+volatile int s_trap_occurred;
+volatile int s_mode_entered;
 
 void m_trap_handler(void);
 void s_trap_handler(void);
 
-int main()
+static unsigned char snake_x[MAX_SNAKE];
+static unsigned char snake_y[MAX_SNAKE];
+static unsigned char snake_len;
+static unsigned char dir;
+static unsigned char food_x;
+static unsigned char food_y;
+static unsigned int tick_count;
+static unsigned char game_over;
+
+static void sys_putc(unsigned char ch)
 {
-    // 1. Test basic CSR read/write in M-mode
-    asm volatile ("csrw mscratch, %0" :: "r"(0xDEADBEEF));
-    unsigned int scratch_val = 0;
-    asm volatile ("csrr %0, mscratch" : "=r"(scratch_val));
-    if (scratch_val != 0xDEADBEEF) return 1; // Basic CSR write/read failed
+    *UART_ADDR = ch;
+}
 
-    // 2. Register M-mode trap handler
-    asm volatile ("csrw mtvec, %0" :: "r"((unsigned int)m_trap_handler & ~0x3)); // Direct mode, aligned
+static unsigned char sys_getc(void)
+{
+    return *UART_ADDR;
+}
 
-    // 3. Test ECALL trap in M-mode
-    m_trap_occurred = 0;
-    asm volatile ("ecall");
-    if (m_trap_occurred != 1) return 2; // M-mode ECALL trap failed
+static void put_hex_nibble(unsigned int value)
+{
+    value &= 0xFu;
+    if (value < 10u) {
+        sys_putc((unsigned char)('0' + value));
+    } else {
+        sys_putc((unsigned char)('A' + value - 10u));
+    }
+}
 
-    // 4. Test Illegal Instruction exception in M-mode (write to read-only CSR)
-    m_trap_occurred = 0;
-    asm volatile ("csrw mhartid, %0" :: "r"(1)); // mhartid is read-only
-    if (m_trap_occurred != 1) return 3; // M-mode illegal instruction trap failed
+static void put_hex8(unsigned int value)
+{
+    put_hex_nibble(value >> 4);
+    put_hex_nibble(value);
+}
 
-    // 5. Test trap delegation to S-mode
-    // Set stvec to s_trap_handler
-    asm volatile ("csrw stvec, %0" :: "r"(s_trap_handler));
-    
-    // Delegate illegal instruction exception (cause 2) to S-mode by setting bit 2 in medeleg
-    asm volatile ("csrw medeleg, %0" :: "r"(1 << 2));
+static void screen_clear(void)
+{
+    sys_putc(27);
+    sys_putc('[');
+    sys_putc('2');
+    sys_putc('J');
+    sys_putc(27);
+    sys_putc('[');
+    sys_putc('H');
+}
 
-    // Set mstatus MPP to S-mode (2'b01)
-    // mstatus.MPP is bits 12:11. Clear them and set to 2'b01
-    unsigned int mstatus_val = 0;
-    asm volatile ("csrr %0, mstatus" : "=r"(mstatus_val));
-    mstatus_val = (mstatus_val & ~(3 << 11)) | (1 << 11);
-    asm volatile ("csrw mstatus, %0" :: "r"(mstatus_val));
+static void screen_home(void)
+{
+    sys_putc(27);
+    sys_putc('[');
+    sys_putc('H');
+}
 
-    // Transition to S-mode and execute S-mode tests inline
-    m_trap_occurred = 0;
-    s_trap_occurred = 0;
-    s_mode_entered = 0;
+static void print_title(void)
+{
+    sys_putc('R'); sys_putc('I'); sys_putc('S'); sys_putc('C'); sys_putc('-');
+    sys_putc('V'); sys_putc(' '); sys_putc('S'); sys_putc('n'); sys_putc('a');
+    sys_putc('k'); sys_putc('e'); sys_putc(' '); sys_putc('O'); sys_putc('S');
+    sys_putc('\n');
+    sys_putc('W'); sys_putc('A'); sys_putc('S'); sys_putc('D'); sys_putc(' ');
+    sys_putc('m'); sys_putc('o'); sys_putc('v'); sys_putc('e'); sys_putc(',');
+    sys_putc(' '); sys_putc('Q'); sys_putc(' '); sys_putc('r'); sys_putc('e');
+    sys_putc('s'); sys_putc('e'); sys_putc('t'); sys_putc('\n');
+}
 
-    asm volatile (
-        "la t0, s_test_start\n\t"
-        "csrw mepc, t0\n\t"
-        "mret\n\t"
-        
-        "s_test_start:\n\t"
-        // Now in S-mode!
-        "li t1, 1\n\t"
-        "la t2, s_mode_entered\n\t"
-        "sw t1, 0(t2)\n\t"
-        
-        // Try to write to M-mode CSR mscratch (privilege violation -> traps to s_trap_handler)
-        "csrw mscratch, t1\n\t"
-        
-        // Exit S-mode by doing an ECALL (traps to M-mode, which increments mepc and returns here)
-        "ecall\n\t"
-        
-        // S-mode will continue executing from here!
-        "nop\n\t"
-        :: : "t0", "t1", "t2"
-    );
+static void game_init(void)
+{
+    snake_len = 4;
+    snake_x[0] = 10; snake_y[0] = 5;
+    snake_x[1] = 9;  snake_y[1] = 5;
+    snake_x[2] = 8;  snake_y[2] = 5;
+    snake_x[3] = 7;  snake_y[3] = 5;
+    dir = 3;
+    food_x = 14;
+    food_y = 4;
+    tick_count = 0;
+    game_over = 0;
+}
 
-    // Verify results
-    if (s_mode_entered != 1) return 4;
-    if (s_trap_occurred != 1) return 5;
-    if (m_trap_occurred != 1) return 6;
+static void place_food(void)
+{
+    unsigned char tries = 0;
+    unsigned char ok = 0;
 
-    // All tests passed! Return 15 (0xF)
-    return 15;
+    while (!ok && tries < 40) {
+        unsigned char i;
+        ok = 1;
+        food_x += 7;
+        if (food_x >= BOARD_W) food_x -= BOARD_W;
+        food_y += 3;
+        if (food_y >= BOARD_H) food_y -= BOARD_H;
+
+        for (i = 0; i < snake_len; i++) {
+            if (snake_x[i] == food_x && snake_y[i] == food_y) {
+                ok = 0;
+            }
+        }
+        tries++;
+    }
+}
+
+static void handle_input(void)
+{
+    unsigned char ch = sys_getc();
+    if (ch >= 'a' && ch <= 'z') {
+        ch = (unsigned char)(ch - 'a' + 'A');
+    }
+
+    if (ch == 'W' && dir != 1) dir = 0;
+    if (ch == 'S' && dir != 0) dir = 1;
+    if (ch == 'A' && dir != 3) dir = 2;
+    if (ch == 'D' && dir != 2) dir = 3;
+    if (ch == 'Q') game_init();
+}
+
+static void game_step(void)
+{
+    unsigned char new_x = snake_x[0];
+    unsigned char new_y = snake_y[0];
+    unsigned char i;
+    unsigned char ate_food = 0;
+
+    if (game_over) return;
+
+    if (dir == 0) {
+        if (new_y == 0) { game_over = 1; return; }
+        new_y--;
+    } else if (dir == 1) {
+        new_y++;
+        if (new_y >= BOARD_H) { game_over = 1; return; }
+    } else if (dir == 2) {
+        if (new_x == 0) { game_over = 1; return; }
+        new_x--;
+    } else {
+        new_x++;
+        if (new_x >= BOARD_W) { game_over = 1; return; }
+    }
+
+    for (i = 0; i < snake_len; i++) {
+        if (snake_x[i] == new_x && snake_y[i] == new_y) {
+            game_over = 1;
+            return;
+        }
+    }
+
+    if (new_x == food_x && new_y == food_y) {
+        ate_food = 1;
+        if (snake_len < MAX_SNAKE) {
+            snake_len++;
+        }
+    }
+
+    i = snake_len - 1;
+    while (i > 0) {
+        snake_x[i] = snake_x[i - 1];
+        snake_y[i] = snake_y[i - 1];
+        i--;
+    }
+    snake_x[0] = new_x;
+    snake_y[0] = new_y;
+
+    if (ate_food) {
+        place_food();
+    }
+}
+
+static unsigned char cell_has_snake(unsigned char x, unsigned char y, unsigned char *is_head)
+{
+    unsigned char i;
+    for (i = 0; i < snake_len; i++) {
+        if (snake_x[i] == x && snake_y[i] == y) {
+            *is_head = (i == 0);
+            return 1;
+        }
+    }
+    *is_head = 0;
+    return 0;
+}
+
+static void render_board(void)
+{
+    unsigned char x;
+    unsigned char y;
+
+    screen_home();
+    print_title();
+    sys_putc('T'); sys_putc('=');
+    put_hex8(tick_count);
+    sys_putc(' ');
+    sys_putc('L'); sys_putc('=');
+    put_hex8(snake_len);
+    sys_putc('\n');
+
+    for (x = 0; x < BOARD_W + 2; x++) sys_putc('#');
+    sys_putc('\n');
+
+    for (y = 0; y < BOARD_H; y++) {
+        sys_putc('#');
+        for (x = 0; x < BOARD_W; x++) {
+            unsigned char is_head = 0;
+            if (cell_has_snake(x, y, &is_head)) {
+                sys_putc(is_head ? '@' : 'o');
+            } else if (x == food_x && y == food_y) {
+                sys_putc('*');
+            } else {
+                sys_putc(' ');
+            }
+        }
+        sys_putc('#');
+        sys_putc('\n');
+    }
+
+    for (x = 0; x < BOARD_W + 2; x++) sys_putc('#');
+    sys_putc('\n');
+
+    if (game_over) {
+        sys_putc('G'); sys_putc('A'); sys_putc('M'); sys_putc('E'); sys_putc(' ');
+        sys_putc('O'); sys_putc('V'); sys_putc('E'); sys_putc('R'); sys_putc(' ');
+        sys_putc('-'); sys_putc(' '); sys_putc('Q'); sys_putc(' ');
+        sys_putc('r'); sys_putc('e'); sys_putc('s'); sys_putc('e'); sys_putc('t');
+        sys_putc('\n');
+    }
+}
+
+static void clock_task(void)
+{
+    tick_count++;
+}
+
+static void delay(void)
+{
+    volatile unsigned int i;
+    for (i = 0; i < 200000u; i++) {
+        asm volatile ("nop");
+    }
+}
+
+int main(void)
+{
+    asm volatile ("csrw mtvec, %0" :: "r"((unsigned int)m_trap_handler & ~0x3u));
+    asm volatile ("csrw stvec, %0" :: "r"((unsigned int)s_trap_handler & ~0x3u));
+
+    screen_clear();
+    game_init();
+
+    while (1) {
+        handle_input();
+        game_step();
+        clock_task();
+        render_board();
+        delay();
+    }
 }
