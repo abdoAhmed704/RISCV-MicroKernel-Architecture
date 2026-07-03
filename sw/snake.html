@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RISC-V Snake OS Emulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #06070a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'JetBrains Mono', monospace;
+    color: #c0c0c0;
+    overflow-x: hidden;
+  }
+
+  /* Animated matrix background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image:
+      linear-gradient(rgba(0, 255, 128, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 128, 0.02) 1px, transparent 1px);
+    background-size: 25px 25px;
+    z-index: 0;
+    animation: gridScroll 20s linear infinite;
+  }
+
+  @keyframes gridScroll {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(25px, 25px); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 95%;
+    max-width: 900px;
+    padding: 20px 0;
+  }
+
+  .title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #00ff80, #00bfff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+    text-shadow: 0 0 30px rgba(0, 255, 128, 0.25);
+    letter-spacing: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: #4a6a5a;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  /* Status and Loader layout */
+  .control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0d121a;
+    border: 1px solid #1a2535;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .file-loader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .custom-file-input {
+    background: #162235;
+    border: 1px solid #00ff80;
+    color: #00ff80;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+  }
+
+  .custom-file-input:hover {
+    background: #00ff80;
+    color: #0d121a;
+    box-shadow: 0 0 10px rgba(0,255,128,0.4);
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .cpu-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .cpu-badge.waiting {
+    background: #332200;
+    color: #ffaa00;
+    border: 1px solid #ffaa00;
+  }
+
+  .cpu-badge.running {
+    background: #003311;
+    color: #00ff80;
+    border: 1px solid #00ff80;
+    animation: flash 1.5s infinite alternate;
+  }
+
+  @keyframes flash {
+    from { opacity: 0.75; }
+    to { opacity: 1; }
+  }
+
+  .emulator-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.8rem;
+    color: #8899a6;
+  }
+
+  .emulator-stats span strong {
+    color: #c0c0c0;
+  }
+
+  /* Two column workspace */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .workspace {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* CRT Screen container */
+  .screen-container {
+    position: relative;
+    border-radius: 8px;
+    background: #08090d;
+    border: 2px solid #1a3a2a;
+    box-shadow:
+      0 0 30px rgba(0, 255, 128, 0.05),
+      inset 0 0 30px rgba(0,0,0,0.9);
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .screen-container::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 3px, 3px 100%;
+    pointer-events: none;
+  }
+
+  /* Actual CRT text screen */
+  pre#terminal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #00ff80;
+    background: transparent;
+    text-shadow: 0 0 4px rgba(0, 255, 128, 0.7);
+    text-align: left;
+    white-space: pre;
+    height: 380px;
+    overflow: hidden;
+  }
+
+  /* Sidebar styling for RISC-V registers */
+  .register-view {
+    background: #0b0f16;
+    border: 1px solid #182230;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+
+  .register-view h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #00bfff;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #1c2b3e;
+    padding-bottom: 6px;
+  }
+
+  .reg-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    font-size: 0.72rem;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+
+  .reg-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 4px;
+    background: #111822;
+    border-radius: 3px;
+  }
+
+  .reg-name {
+    color: #4a6a5a;
+  }
+
+  .reg-val {
+    color: #e0e0e0;
+    font-weight: 700;
+  }
+
+  /* Instruction Log / CSR fields */
+  .csr-panel {
+    grid-column: span 2;
+    background: #090b0e;
+    border: 1px solid #141c27;
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 768px) {
+    .csr-panel {
+      grid-column: span 1;
+    }
+  }
+
+  .csr-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .csr-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .csr-name {
+    color: #566c7f;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .csr-val {
+    color: #00ff80;
+    font-weight: 700;
+  }
+
+  .instructions {
+    margin-top: 15px;
+    font-size: 0.75rem;
+    color: #3b5042;
+    letter-spacing: 1px;
+  }
+
+  .instructions kbd {
+    background: #121915;
+    border: 1px solid #203527;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: #00ff80;
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">RISC-V CORE EMULATOR</div>
+  <div class="subtitle">HARDWARE-SOFTWARE INTEGRATED PLAYGROUND</div>
+
+  <!-- Control & Config panel -->
+  <div class="control-panel">
+    <div class="file-loader">
+      <label class="custom-file-input">
+        LOAD FIRMWARE.HEX
+        <input type="file" id="file-input" accept=".hex">
+      </label>
+      <div class="cpu-badge waiting" id="cpu-badge">WAITING FOR FW</div>
+    </div>
+
+    <div class="emulator-stats">
+      <span>PC: <strong id="val-pc">0x00000000</strong></span>
+      <span>Speed: <strong id="val-mhz">~3.5 MHz</strong></span>
+      <span>Instructions: <strong id="val-inst-count">0</strong></span>
+    </div>
+  </div>
+
+  <!-- Workspace: Screen + Register list -->
+  <div class="workspace">
+    <!-- CRT Terminal screen -->
+    <div class="screen-container">
+      <pre id="terminal">
+┌────────────────────────────────────────┐
+│ Please click "LOAD FIRMWARE.HEX" above  │
+│ and select your compiled hex file:     │
+│                                        │
+│  sw/build/firmware.hex                 │
+│                                        │
+│ Then focus this window to play!        │
+└────────────────────────────────────────┘</pre>
+    </div>
+
+    <!-- Live register viewer -->
+    <div class="register-view">
+      <h3>Registers</h3>
+      <div class="reg-grid" id="reg-list">
+        <!-- populated by js -->
+      </div>
+    </div>
+
+    <!-- CSR Status Panel -->
+    <div class="csr-panel">
+      <div class="csr-grid">
+        <div class="csr-item">
+          <span class="csr-name">mstatus</span>
+          <span class="csr-val" id="csr-mstatus">0x00000000</span>
+        </div>
+        <div class="csr-item">
+          <span class="csr-name">mtvec</span>
+          <span class="csr-val" id="csr-mtvec">0x00000000</span>
+        </div>
+        <div class="csr-item">
+          <span class="csr-name">mepc</span>
+          <span class="csr-val" id="csr-mepc">0x00000000</span>
+        </div>
+        <div class="csr-item">
+          <span class="csr-name">mcause</span>
+          <span class="csr-val" id="csr-mcause">0x00000000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Use <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or arrow keys to send keystrokes to UART address <kbd>0x00003FF0</kbd>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    Press <kbd>R</kbd> to restart emulator
+  </div>
+</div>
+
+<script>
+// ─── RISC-V RV32I Emulator Core ─────────────────────────────────────
+const MEM_SIZE = 16384; // 16 KiB Memory Space
+const UART_ADDR = 0x00003FF0;
+
+const ram = new Uint8Array(MEM_SIZE);
+const regs = new Int32Array(32);
+let pc = 0;
+let instCount = 0;
+
+// CSR Registers
+let mstatus = 0;
+let mtvec = 0;
+let mepc = 0;
+let mcause = 0;
+let stvec = 0;
+let sepc = 0;
+let scause = 0;
+let privMode = 3; // 3 = Machine mode
+
+// Buffers for terminal
+const TERM_W = 40;
+const TERM_H = 16;
+const termGrid = Array.from({length: TERM_H}, () => Array(TERM_W).fill(' '));
+let cursorX = 0;
+let cursorY = 0;
+let ansiState = 0;
+let ansiBuf = '';
+
+let keyboardBuffer = [];
+let cpuRunning = false;
+let loopId = null;
+
+// Initialize register UI
+const regNames = [
+  "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+  "s0/fp", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+  "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+  "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+];
+
+const regList = document.getElementById('reg-list');
+for (let i = 0; i < 32; i++) {
+  const div = document.createElement('div');
+  div.className = 'reg-item';
+  div.innerHTML = `<span class="reg-name">x${i}(${regNames[i]})</span><span class="reg-val" id="reg-x${i}">0x00000000</span>`;
+  regList.appendChild(div);
+}
+
+// ─── Memory Interfaces ──────────────────────────────────────────────
+function read32(addr) {
+  if (addr === UART_ADDR) {
+    if (keyboardBuffer.length > 0) {
+      return keyboardBuffer.shift();
+    }
+    return 0;
+  }
+  if (addr + 3 >= MEM_SIZE) return 0;
+  return ram[addr] | (ram[addr+1] << 8) | (ram[addr+2] << 16) | (ram[addr+3] << 24);
+}
+
+function read16(addr, signed) {
+  if (addr + 1 >= MEM_SIZE) return 0;
+  let val = ram[addr] | (ram[addr+1] << 8);
+  if (signed && (val & 0x8000)) {
+    val |= 0xffff0000;
+  }
+  return val;
+}
+
+function read8(addr, signed) {
+  if (addr === UART_ADDR) {
+    if (keyboardBuffer.length > 0) {
+      return keyboardBuffer.shift();
+    }
+    return 0;
+  }
+  if (addr >= MEM_SIZE) return 0;
+  let val = ram[addr];
+  if (signed && (val & 0x80)) {
+    val |= 0xffffff00;
+  }
+  return val;
+}
+
+function write32(addr, val) {
+  if (addr === UART_ADDR) {
+    termPutc(val & 0xff);
+    return;
+  }
+  if (addr + 3 >= MEM_SIZE) return;
+  ram[addr] = val & 0xff;
+  ram[addr+1] = (val >> 8) & 0xff;
+  ram[addr+2] = (val >> 16) & 0xff;
+  ram[addr+3] = (val >> 24) & 0xff;
+}
+
+function write16(addr, val) {
+  if (addr + 1 >= MEM_SIZE) return;
+  ram[addr] = val & 0xff;
+  ram[addr+1] = (val >> 8) & 0xff;
+}
+
+function write8(addr, val) {
+  if (addr === UART_ADDR) {
+    termPutc(val & 0xff);
+    return;
+  }
+  if (addr >= MEM_SIZE) return;
+  ram[addr] = val & 0xff;
+}
+
+// ─── CSR Interfaces ─────────────────────────────────────────────────
+function readCSR(addr) {
+  switch (addr) {
+    case 0x300: return mstatus;
+    case 0x305: return mtvec;
+    case 0x341: return mepc;
+    case 0x342: return mcause;
+    case 0x105: return stvec;
+    case 0x141: return sepc;
+    case 0x142: return scause;
+    default: return 0;
+  }
+}
+
+function writeCSR(addr, val) {
+  switch (addr) {
+    case 0x300: mstatus = val; break;
+    case 0x305: mtvec = val; break;
+    case 0x341: mepc = val & ~3; break;
+    case 0x342: mcause = val; break;
+    case 0x105: stvec = val; break;
+    case 0x141: sepc = val & ~3; break;
+    case 0x142: scause = val; break;
+  }
+}
+
+// ─── CPU Step execution ─────────────────────────────────────────────
+function step() {
+  regs[0] = 0; // x0 = 0 always
+
+  // Read instruction
+  let inst = read32(pc);
+
+  let opcode = inst & 0x7f;
+  let rd     = (inst >> 7) & 0x1f;
+  let funct3 = (inst >> 12) & 0x7;
+  let rs1    = (inst >> 15) & 0x1f;
+  let rs2    = (inst >> 20) & 0x1f;
+  let funct7 = (inst >> 25) & 0x7f;
+
+  let pcNext = pc + 4;
+
+  // Immediates
+  let immI = (inst >> 20); // Signed arithmetic right-shift
+  let immS = ((inst >> 25) << 5) | ((inst >> 7) & 0x1f);
+  if (immS & 0x800) immS |= 0xfffff000;
+
+  let immB = ((inst >> 31) << 12) | (((inst >> 7) & 1) << 11) | (((inst >> 25) & 0x3f) << 5) | (((inst >> 8) & 0xf) << 1);
+  if (immB & 0x1000) immB |= 0xffffe000;
+
+  let immU = inst & 0xfffff000;
+
+  let immJ = ((inst >> 31) << 20) | (((inst >> 12) & 0xff) << 12) | (((inst >> 20) & 1) << 11) | (((inst >> 21) & 0x3ff) << 1);
+  if (immJ & 0x100000) immJ |= 0xffe00000;
+
+  switch (opcode) {
+    case 0x37: // LUI
+      regs[rd] = immU;
+      break;
+    case 0x17: // AUIPC
+      regs[rd] = pc + immU;
+      break;
+    case 0x6f: // JAL
+      regs[rd] = pc + 4;
+      pcNext = pc + immJ;
+      break;
+    case 0x67: // JALR
+      regs[rd] = pc + 4;
+      pcNext = (regs[rs1] + immI) & ~1;
+      break;
+    case 0x63: { // BRANCH
+      let op1 = regs[rs1];
+      let op2 = regs[rs2];
+      let take = false;
+      switch (funct3) {
+        case 0: take = (op1 === op2); break; // BEQ
+        case 1: take = (op1 !== op2); break; // BNE
+        case 4: take = (op1 < op2); break;   // BLT
+        case 5: take = (op1 >= op2); break;  // BGE
+        case 6: take = ((op1 >>> 0) < (op2 >>> 0)); break;  // BLTU
+        case 7: take = ((op1 >>> 0) >= (op2 >>> 0)); break; // BGEU
+      }
+      if (take) pcNext = pc + immB;
+      break;
+    }
+    case 0x03: { // LOAD
+      let addr = regs[rs1] + immI;
+      switch (funct3) {
+        case 0: regs[rd] = read8(addr, true); break;
+        case 1: regs[rd] = read16(addr, true); break;
+        case 2: regs[rd] = read32(addr); break;
+        case 4: regs[rd] = read8(addr, false); break;
+        case 5: regs[rd] = read16(addr, false); break;
+      }
+      break;
+    }
+    case 0x23: { // STORE
+      let addr = regs[rs1] + immS;
+      switch (funct3) {
+        case 0: write8(addr, regs[rs2]); break;
+        case 1: write16(addr, regs[rs2]); break;
+        case 2: write32(addr, regs[rs2]); break;
+      }
+      break;
+    }
+    case 0x13: { // OP-IMM
+      let op1 = regs[rs1];
+      let shamt = rs2;
+      switch (funct3) {
+        case 0: regs[rd] = op1 + immI; break;
+        case 2: regs[rd] = (op1 < immI) ? 1 : 0; break;
+        case 3: regs[rd] = ((op1 >>> 0) < (immI >>> 0)) ? 1 : 0; break;
+        case 4: regs[rd] = op1 ^ immI; break;
+        case 6: regs[rd] = op1 | immI; break;
+        case 7: regs[rd] = op1 & immI; break;
+        case 1: regs[rd] = op1 << shamt; break;
+        case 5:
+          if (funct7 === 0x00) regs[rd] = op1 >>> shamt;
+          else if (funct7 === 0x20) regs[rd] = op1 >> shamt;
+          break;
+      }
+      break;
+    }
+    case 0x33: { // OP
+      let op1 = regs[rs1];
+      let op2 = regs[rs2];
+      let shamt = op2 & 0x1f;
+      switch (funct3) {
+        case 0:
+          if (funct7 === 0x00) regs[rd] = op1 + op2;
+          else if (funct7 === 0x20) regs[rd] = op1 - op2;
+          break;
+        case 1: regs[rd] = op1 << shamt; break;
+        case 2: regs[rd] = (op1 < op2) ? 1 : 0; break;
+        case 3: regs[rd] = ((op1 >>> 0) < (op2 >>> 0)) ? 1 : 0; break;
+        case 4: regs[rd] = op1 ^ op2; break;
+        case 5:
+          if (funct7 === 0x00) regs[rd] = op1 >>> shamt;
+          else if (funct7 === 0x20) regs[rd] = op1 >> shamt;
+          break;
+        case 6: regs[rd] = op1 | op2; break;
+        case 7: regs[rd] = op1 & op2; break;
+      }
+      break;
+    }
+    case 0x73: { // SYSTEM
+      if (funct3 === 0) {
+        if (immI === 0) { // ECALL
+          trap(11);
+          return;
+        } else if (immI === 1) { // EBREAK
+          trap(3);
+          return;
+        } else if (funct7 === 0x18) { // MRET
+          pcNext = mepc;
+          let mpp = (mstatus >> 11) & 3;
+          let mpie = (mstatus >> 7) & 1;
+          mstatus = (mstatus & ~(1 << 3)) | (mpie << 3);
+          mstatus = (mstatus & ~(1 << 7)) | (1 << 7);
+          mstatus = (mstatus & ~(3 << 11));
+          privMode = mpp;
+        } else if (funct7 === 0x08) { // SRET
+          pcNext = sepc;
+          let spp = (mstatus >> 8) & 1;
+          let spie = (mstatus >> 5) & 1;
+          mstatus = (mstatus & ~(1 << 1)) | (spie << 1);
+          mstatus = (mstatus & ~(1 << 5)) | (1 << 5);
+          mstatus = (mstatus & ~(1 << 8));
+          privMode = spp ? 1 : 0;
+        }
+      } else {
+        // CSR operations
+        let csrAddr = immI & 0xfff;
+        let oldVal = readCSR(csrAddr);
+        let writeVal = oldVal;
+        let isImm = (funct3 & 4) !== 0;
+        let src = isImm ? rs1 : regs[rs1];
+
+        switch (funct3 & 3) {
+          case 1: writeVal = src; break; // CSRRW
+          case 2: writeVal = oldVal | src; break; // CSRRS
+          case 3: writeVal = oldVal & ~src; break; // CSRRC
+        }
+        writeCSR(csrAddr, writeVal);
+        if (rd !== 0) regs[rd] = oldVal;
+      }
+      break;
+    }
+    default:
+      console.warn("Invalid opcode:", opcode.toString(16), "at PC:", pc.toString(16));
+  }
+
+  pc = pcNext;
+  instCount++;
+}
+
+function trap(cause) {
+  mepc = pc;
+  mcause = cause;
+  mstatus = (mstatus & ~(3 << 11)) | (privMode << 11);
+  let mie = (mstatus >> 3) & 1;
+  mstatus = (mstatus & ~(1 << 7)) | (mie << 7);
+  mstatus &= ~(1 << 3); // Disable interrupts
+  privMode = 3; // Jump to M-mode
+  pc = mtvec & ~3;
+}
+
+// ─── Virtual ANSI Terminal ──────────────────────────────────────────
+function clearScreen() {
+  for (let y = 0; y < TERM_H; y++) {
+    termGrid[y].fill(' ');
+  }
+  cursorX = 0;
+  cursorY = 0;
+}
+
+function termPutc(chVal) {
+  if (ansiState === 0) {
+    if (chVal === 27) { // ESC
+      ansiState = 1;
+    } else if (chVal === 10) { // Newline \n
+      cursorY = Math.min(cursorY + 1, TERM_H - 1);
+      cursorX = 0;
+    } else if (chVal === 13) { // Carrige Return \r
+      cursorX = 0;
+    } else {
+      if (cursorX < TERM_W && cursorY < TERM_H) {
+        termGrid[cursorY][cursorX] = String.fromCharCode(chVal);
+        cursorX++;
+      }
+    }
+  } else if (ansiState === 1) {
+    if (String.fromCharCode(chVal) === '[') {
+      ansiState = 2;
+      ansiBuf = '';
+    } else {
+      ansiState = 0;
+    }
+  } else if (ansiState === 2) {
+    const char = String.fromCharCode(chVal);
+    if ((char >= 'A' && char <= 'Z') || (char >= 'a' && char <= 'z')) {
+      handleAnsiCmd(char, ansiBuf);
+      ansiState = 0;
+    } else {
+      ansiBuf += char;
+    }
+  }
+}
+
+function handleAnsiCmd(cmd, buf) {
+  if (cmd === 'H') { // Cursor position
+    if (buf === '') {
+      cursorX = 0;
+      cursorY = 0;
+    } else {
+      const parts = buf.split(';');
+      const r = parseInt(parts[0] || '1') - 1;
+      const c = parseInt(parts[1] || '1') - 1;
+      cursorY = Math.max(0, Math.min(r, TERM_H - 1));
+      cursorX = Math.max(0, Math.min(c, TERM_W - 1));
+    }
+  } else if (cmd === 'J') { // Erase screen
+    if (buf === '2') {
+      clearScreen();
+    }
+  }
+}
+
+function drawTerminal() {
+  let lines = [];
+  for (let y = 0; y < TERM_H; y++) {
+    lines.push(termGrid[y].join('').trimEnd());
+  }
+  document.getElementById('terminal').textContent = lines.join('\n');
+}
+
+// ─── UI Register values updating ────────────────────────────────────
+function updateRegisterUI() {
+  document.getElementById('val-pc').textContent = '0x' + pc.toString(16).toUpperCase().padStart(8, '0');
+  document.getElementById('val-inst-count').textContent = instCount.toLocaleString();
+
+  for (let i = 0; i < 32; i++) {
+    const el = document.getElementById(`reg-x${i}`);
+    if (el) {
+      const val = regs[i];
+      el.textContent = '0x' + (val >>> 0).toString(16).toUpperCase().padStart(8, '0');
+    }
+  }
+
+  document.getElementById('csr-mstatus').textContent = '0x' + (mstatus >>> 0).toString(16).toUpperCase().padStart(8, '0');
+  document.getElementById('csr-mtvec').textContent = '0x' + (mtvec >>> 0).toString(16).toUpperCase().padStart(8, '0');
+  document.getElementById('csr-mepc').textContent = '0x' + (mepc >>> 0).toString(16).toUpperCase().padStart(8, '0');
+  document.getElementById('csr-mcause').textContent = '0x' + (mcause >>> 0).toString(16).toUpperCase().padStart(8, '0');
+}
+
+// ─── Reset Emulator ─────────────────────────────────────────────────
+function resetCPU() {
+  regs.fill(0);
+  regs[2] = 0x00000F00; // Setup stack pointer (matching start.s:7)
+  pc = 0;
+  instCount = 0;
+  mstatus = 0;
+  mtvec = 0;
+  mepc = 0;
+  mcause = 0;
+  stvec = 0;
+  sepc = 0;
+  scause = 0;
+  privMode = 3;
+  keyboardBuffer = [];
+  clearScreen();
+  drawTerminal();
+  updateRegisterUI();
+}
+
+// ─── Main Execution loop ────────────────────────────────────────────
+function runLoop() {
+  if (!cpuRunning) return;
+
+  // Run ~60k instructions per frame (~3.6 MHz equivalent speed)
+  const stepsPerFrame = 60000;
+  for (let i = 0; i < stepsPerFrame; i++) {
+    step();
+  }
+
+  drawTerminal();
+  updateRegisterUI();
+  loopId = requestAnimationFrame(runLoop);
+}
+
+// ─── Parse Hex Firmware File ────────────────────────────────────────
+function loadHexFirmware(text) {
+  ram.fill(0);
+  const lines = text.split('\n');
+  let loadedWords = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.length >= 8) {
+      const val = parseInt(line, 16);
+      if (isNaN(val)) continue;
+      const addr = i * 4;
+      if (addr + 3 < MEM_SIZE) {
+        ram[addr]     = val & 0xff;
+        ram[addr+1]   = (val >> 8) & 0xff;
+        ram[addr+2]   = (val >> 16) & 0xff;
+        ram[addr+3]   = (val >> 24) & 0xff;
+        loadedWords++;
+      }
+    }
+  }
+
+  console.log(`Loaded ${loadedWords} words into RAM.`);
+  resetCPU();
+
+  // Update CPU Status Badge
+  const badge = document.getElementById('cpu-badge');
+  badge.className = 'cpu-badge running';
+  badge.textContent = 'CPU: RUNNING';
+
+  cpuRunning = true;
+  if (loopId) cancelAnimationFrame(loopId);
+  runLoop();
+}
+
+// ─── File Input listener ────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    loadHexFirmware(event.target.result);
+  };
+  reader.readAsText(file);
+});
+
+// ─── Keyboard Input capturing ───────────────────────────────────────
+window.addEventListener('keydown', (e) => {
+  if (!cpuRunning) return;
+
+  let char = '';
+  switch(e.key) {
+    case 'w': case 'W': case 'ArrowUp':    char = 'W'; break;
+    case 's': case 'S': case 'ArrowDown':  char = 'S'; break;
+    case 'a': case 'A': case 'ArrowLeft':  char = 'A'; break;
+    case 'd': case 'D': case 'ArrowRight': char = 'D'; break;
+    case 'q': case 'Q':                    char = 'Q'; break;
+    case 'r': case 'R':
+      resetCPU();
+      e.preventDefault();
+      return;
+  }
+
+  if (char !== '') {
+    keyboardBuffer.push(char.charCodeAt(0));
+    e.preventDefault();
+  }
+});
+</script>
+
+</body>
+</html>
