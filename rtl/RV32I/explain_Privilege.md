@@ -632,3 +632,107 @@ CSR state after ECALL+MRET:
 | `ebreak` | 1110011 | 000 | — | `[31:20]=0x001` |
 | `mret` | 1110011 | 000 | — | `[31:20]=0x302` |
 | `sret` | 1110011 | 000 | — | `[31:20]=0x102` |
+
+
+
+Viewed riscv_test.s:3-32
+
+Here is the complete step-by-step pipeline execution walkthrough for the instruction:
+```assembly
+csrrw x2, mscratch, x1
+```
+This instruction compiles to the machine code **`32'h34009173`**. Let's trace how it flows through the 5 pipeline stages cycle-by-cycle, including the changing control signals and active wires.
+
+---
+
+### 1. Instruction Fetch (IF Stage) — Cycle 1
+* **Active PC:** `PCF = 0x00000008` (the 3rd instruction address).
+* **Action:** 
+  1. The instruction memory [riscv_instruction_mem.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_instruction_mem.sv) reads `0x00000008` and outputs the instruction word `instrF = 32'h34009173`.
+  2. The adder computes `PCPlus4F = PCF + 4 = 0x0000000C`.
+* **Next Clock Edge (posedge clk):**
+  * `PCF` updates to `0x0000000C` for the next instruction.
+  * The IF/ID pipeline registers latch the instruction:
+    * `instrD <= 32'h34009173`
+    * `PCD <= 0x00000008`
+
+---
+
+### 2. Instruction Decode (ID Stage) — Cycle 2
+* **Active Instruction:** `instrD = 32'h34009173`
+* **Parsing the Fields:**
+  * Opcode (`instrD[6:0]`) = `7'b1110011` (SYSTEM type)
+  * Destination General Register (`instrD[11:7]`) = `5'd2` (`x2`)
+  * Mode/Operation (`instrD[14:12]`) = `3'b001` (CSRRW)
+  * Source General Register (`instrD[19:15]`) = `5'd1` (`x1`)
+  * Target CSR Address (`instrD[31:20]`) = `12'h340` (`mscratch`)
+* **Action:**
+  1. **Register File Read:** Reads register `x1` (which contains `0x00000055` from the previous instruction). The output wire `RD1` gets `0x00000055`.
+  2. **Control Unit Decoding:** The Control Unit [riscv_control_unit.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_control_unit.sv) and Decode Stage decode the SYSTEM opcode:
+     * `RegWriteD = 1` (will write the old CSR value to `x2`)
+     * `ResultSrcD = 2'b11` (routes the output of the CSR read block to the writeback multiplexer)
+     * `csr_wenD = 1` (enables writes to the CSR)
+     * `csr_opD = 2'b01` (denotes `CSRRW` write operation)
+     * `csr_addrD = 12'h340` (address of `mscratch`)
+* **Next Clock Edge (posedge clk):**
+  * The ID/EX pipeline registers latch the decoded values:
+    * `RD1E <= 0x00000055`
+    * `RdE <= 5'd2`
+    * `RegWriteE <= 1`, `ResultSrcE <= 2'b11`
+    * `csr_wenE <= 1`, `csr_opE <= 2'b01`, `csr_addrE <= 12'h340`
+
+---
+
+### 3. Instruction Execute (EX Stage) — Cycle 3
+* **Action:**
+  1. The ALU is **bypassed/not used** for CSR instructions (though the ALU control signals are set, the final result will be ignored).
+  2. The execute stage prepares the write source data `csr_srcM`:
+     * Since `csr_imm_selE = 0` (this is a register form, not immediate), `csr_srcM` is assigned `RD1E` (`0x00000055`).
+* **Next Clock Edge (posedge clk):**
+  * The EX/MEM pipeline registers latch:
+    * `csr_srcM <= 0x00000055` (value to write to the CSR)
+    * `csr_addrM <= 12'h340`
+    * `csr_opM <= 2'b01`
+    * `csr_wenM <= 1`
+    * `RdM <= 5'd2`
+    * `RegWriteM <= 1`, `ResultSrcM <= 2'b11`
+
+---
+
+### 4. Memory Stage (MEM Stage) — Cycle 4
+This is the stage where the **CSR Unit (`riscv_csr_unit.sv`)** actually updates and executes the operation.
+* **Wires entering `riscv_csr_unit`:**
+  * `i_csr_unit_csr_addr = 12'h340`
+  * `i_csr_unit_op = 2'b01` (CSRRW)
+  * `i_csr_unit_src = 0x00000055` (coming from `csr_srcM`)
+  * `i_csr_unit_csr_wen = 1` (coming from `csr_wenM`)
+* **Action (Inside the CSR Unit):**
+  1. **Read Operation (Combinational):** The CSR address decoder matches `12'h340`. It reads the current value stored in the `mscratch_q` flip-flop (let's assume it was `0x00000000` from reset). It outputs:
+     * `o_csr_unit_rdata = 32'h00000000` (old value to be saved to general register `x2`).
+  2. **Write Preparation:** The target write data `csr_wdata` is computed:
+     * `csr_wdata = i_csr_unit_src = 0x00000055`.
+* **Next Clock Edge (posedge clk):**
+  * **CSR register update:** The physical `mscratch_q` register updates to the new value:
+    * `mscratch_q <= 32'h00000055`.
+  * The read data `o_csr_unit_rdata` is latched into the MEM/WB pipeline register:
+    * `CSRRDataW <= 32'h00000000`.
+  * Other signals latch:
+    * `RdW <= 5'd2`
+    * `RegWriteW <= 1`, `ResultSrcW <= 2'b11`
+
+---
+
+### 5. Writeback Stage (WB Stage) — Cycle 5
+* **Action:**
+  1. The 4-to-1 writeback multiplexer `mux_w` looks at `ResultSrcW = 2'b11`.
+  2. It selects the 4th input `CSRRDataW` (`32'h00000000`) and outputs it on the `result` wire.
+  3. The `result` wire (`32'h00000000`) is connected back to the register file's write port `WD3`, and `RdW` (`5'd2`) is connected to the write address port `A3`.
+* **On negedge clk (falling edge of the clock):**
+  * The register file [riscv_register_file.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_register_file.sv) writes the value to register `x2`:
+    * `registers[2] <= 32'h00000000`.
+
+---
+
+### Summary of Final State Changes
+* **`mscratch_q`** is updated to **`0x00000055`**.
+* General Register **`x2`** is updated to **`0x00000000`** (the old value of `mscratch`).
