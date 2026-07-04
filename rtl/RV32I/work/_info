@@ -11,6 +11,7 @@ R0
 R0
 R0
 R0
+R0
 !s11f MIXED_VERSIONS
 13
 !s112 1.1
@@ -41,9 +42,20 @@ R5
 n@_opt1
 R6
 R1
+T_opt2
+!s110 1783097260
+VH<m<fDFEonOA`7a:9MGhF0
+R2
+=1-7c8ae19cdeb7-6a47e7ab-3c7-1cd8
+R3
+o-quiet -auto_acc_if_foreign -work work
+R5
+n@_opt2
+R6
+R1
 vriscv_alu
 Z7 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-Z8 !s110 1783005672
+Z8 !s110 1783097771
 !i10b 1
 !s100 9`kAG@I8<zn2OngUTWeZY1
 IhO:1P^;hBNG^NYPL?GUYh3
@@ -52,16 +64,16 @@ R1
 w1781769161
 8riscv_alu.sv
 Friscv_alu.sv
-!i122 15
+!i122 17
 L0 1 44
 Z9 VDg1SIo80bB@j0V0VzS_@n1
 Z10 OL;L;2021.1;73
 r1
 !s85 0
 31
-Z11 !s108 1783005672.000000
+Z11 !s108 1783097771.000000
 !s107 riscv_top_tb.sv|riscv_top_pipeline.sv|riscv_register_file.sv|riscv_pc_target.sv|riscv_pc_src_controller.sv|riscv_mux_4_1.sv|riscv_mux_3_1.sv|riscv_memory_stage.sv|riscv_instruction_mem.sv|riscv_hazard_unit.sv|riscv_fetch_stage.sv|riscv_extend.sv|riscv_execute_stage.sv|riscv_decode_stage.sv|riscv_data_mem.sv|riscv_csr_unit.sv|riscv_control_unit.sv|riscv_alu.sv|
-Z12 !s90 -reportprogress|300|riscv_alu.sv|riscv_control_unit.sv|riscv_csr_unit.sv|riscv_data_mem.sv|riscv_decode_stage.sv|riscv_execute_stage.sv|riscv_extend.sv|riscv_fetch_stage.sv|riscv_hazard_unit.sv|riscv_instruction_mem.sv|riscv_memory_stage.sv|riscv_mux_3_1.sv|riscv_mux_4_1.sv|riscv_pc_src_controller.sv|riscv_pc_target.sv|riscv_register_file.sv|riscv_top_pipeline.sv|riscv_top_tb.sv|
+Z12 !s90 riscv_alu.sv|riscv_control_unit.sv|riscv_csr_unit.sv|riscv_data_mem.sv|riscv_decode_stage.sv|riscv_execute_stage.sv|riscv_extend.sv|riscv_fetch_stage.sv|riscv_hazard_unit.sv|riscv_instruction_mem.sv|riscv_memory_stage.sv|riscv_mux_3_1.sv|riscv_mux_4_1.sv|riscv_pc_src_controller.sv|riscv_pc_target.sv|riscv_register_file.sv|riscv_top_pipeline.sv|riscv_top_tb.sv|
 !i113 0
 Z13 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R5
@@ -76,7 +88,7 @@ R1
 w1783005265
 8riscv_control_unit.sv
 Friscv_control_unit.sv
-!i122 15
+!i122 17
 L0 1 166
 R9
 R10
@@ -93,15 +105,15 @@ vriscv_csr_unit
 R7
 R8
 !i10b 1
-!s100 kB2TEJ?VRHGFm]<^@2]9D2
-In:T?nV;BJP364]_=[L26n2
+!s100 ozIQ7?i4ejjBT16cNhGmY3
+I7P[z<WUoASIo_jYln8ARX0
 S1
 R1
-w1782851318
+w1783079505
 8riscv_csr_unit.sv
 Friscv_csr_unit.sv
-!i122 15
-L0 1 424
+!i122 17
+L0 11 490
 R9
 R10
 r1
@@ -117,15 +129,15 @@ vriscv_data_mem
 R7
 R8
 !i10b 1
-!s100 6`2:FF[=m]TaX<ZhFa;kD2
-I41_2U82=fE7`[7lUJ8_nE2
+!s100 >e_cjGOkmO7FL4Wik4>k;1
+InQf0BC?XfM4egX191KgTz1
 S1
 R1
-w1781769192
+w1783096874
 8riscv_data_mem.sv
 Friscv_data_mem.sv
-!i122 15
-L0 1 81
+!i122 17
+L0 1 139
 R9
 R10
 r1
@@ -148,7 +160,7 @@ R1
 w1783004979
 8riscv_decode_stage.sv
 Friscv_decode_stage.sv
-!i122 15
+!i122 17
 L0 1 263
 R9
 R10
@@ -172,7 +184,7 @@ R1
 w1782848504
 8riscv_execute_stage.sv
 Friscv_execute_stage.sv
-!i122 15
+!i122 17
 L0 1 151
 R9
 R10
@@ -196,7 +208,7 @@ R1
 w1781769214
 8riscv_extend.sv
 Friscv_extend.sv
-!i122 15
+!i122 17
 L0 1 26
 R9
 R10
@@ -220,7 +232,7 @@ R1
 w1781769269
 8riscv_fetch_stage.sv
 Friscv_fetch_stage.sv
-!i122 15
+!i122 17
 L0 1 47
 R9
 R10
@@ -244,7 +256,7 @@ R1
 w1781769221
 8riscv_hazard_unit.sv
 Friscv_hazard_unit.sv
-!i122 15
+!i122 17
 L0 1 41
 R9
 R10
@@ -261,14 +273,14 @@ vriscv_instruction_mem
 R7
 R8
 !i10b 1
-!s100 O:j80DRF`oS_;<oKdXRSH0
-IzdeTFZaY<?Lf<2eD8`:3e3
+!s100 40EcD;G0oOec5J9HlKT2X2
+Id0`2KnSYLBaj4ZDRAg6<_2
 S1
 R1
-w1781769229
+w1783087744
 8riscv_instruction_mem.sv
 Friscv_instruction_mem.sv
-!i122 15
+!i122 17
 L0 1 20
 R9
 R10
@@ -292,7 +304,7 @@ R1
 w1782848386
 8riscv_memory_stage.sv
 Friscv_memory_stage.sv
-!i122 15
+!i122 17
 L0 1 93
 R9
 R10
@@ -316,7 +328,7 @@ R1
 w1781769243
 8riscv_mux_3_1.sv
 Friscv_mux_3_1.sv
-!i122 15
+!i122 17
 L0 1 16
 R9
 R10
@@ -340,7 +352,7 @@ R1
 w1782848400
 8riscv_mux_4_1.sv
 Friscv_mux_4_1.sv
-!i122 15
+!i122 17
 L0 1 17
 R9
 R10
@@ -364,7 +376,7 @@ R1
 w1781769252
 8riscv_pc_src_controller.sv
 Friscv_pc_src_controller.sv
-!i122 15
+!i122 17
 L0 1 33
 R9
 R10
@@ -381,15 +393,15 @@ vriscv_pc_target
 R7
 R8
 !i10b 1
-!s100 P=>LAgNWW>C`MI<Km>@lV0
-ISA`U;QYjHkRC1>M5e@z7`1
+!s100 ?5Nba;3c6>KD^V_F7CXgk2
+I4WIU3?1dTgLg1fUT6==X93
 S1
 R1
-w1781769153
+w1783088142
 8riscv_pc_target.sv
 Friscv_pc_target.sv
-!i122 15
-L0 1 12
+!i122 17
+L0 1 11
 R9
 R10
 r1
@@ -412,7 +424,7 @@ R1
 w1781769260
 8riscv_register_file.sv
 Friscv_register_file.sv
-!i122 15
+!i122 17
 L0 1 23
 R9
 R10
@@ -436,7 +448,7 @@ R1
 w1782996982
 8riscv_top_pipeline.sv
 Friscv_top_pipeline.sv
-!i122 15
+!i122 17
 L0 1 309
 R9
 R10
@@ -453,15 +465,15 @@ vriscv_top_tb
 R7
 R8
 !i10b 1
-!s100 Z[=OG6j]<^kY;OUXGU2Hc0
-IYER[R^6KVJ7JPIOi<6HXH3
+!s100 5dX7NLJ`TI=Gf4J`z@gHS0
+I[=HSm@@Bz;SHd4WUR31ac1
 S1
 R1
-w1782997006
+w1783088933
 8riscv_top_tb.sv
 Friscv_top_tb.sv
-!i122 15
-L0 1 59
+!i122 17
+L0 1 69
 R9
 R10
 r1

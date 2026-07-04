@@ -1,0 +1,36 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_pc_target.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_pc_target
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_alu.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_alu
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_control_unit.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_control_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_csr_unit.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_csr_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_data_mem.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_data_mem
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_extend.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_extend
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_hazard_unit.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_hazard_unit
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_instruction_mem.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_instruction_mem
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_mux_3_1.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_mux_3_1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_mux_4_1.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_mux_4_1
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_pc_src_controller.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_pc_src_controller
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_register_file.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_register_file
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_fetch_stage.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_fetch_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_decode_stage.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_decode_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_execute_stage.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_execute_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_memory_stage.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_memory_stage
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_pipeline.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_top_pipeline
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_tb.sv" into library work
+INFO: [VRFC 10-311] analyzing module riscv_top_tb
