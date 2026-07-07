@@ -64,6 +64,11 @@ module riscv_execute_stage (
 
     wire [31:0] ALUResultE;
     logic  [31:0] PCTargetE;
+    logic         m_ext_validE;
+    logic [31:0]  m_ext_resultE;
+    logic signed [63:0] mul_ss_E;
+    logic        [63:0] mul_uu_E;
+    logic signed [64:0] mul_su_E;
 
     assign WriteDataE = RD2E; // Data to be written to memory (used in the memory stage)
 
@@ -78,6 +83,49 @@ module riscv_execute_stage (
         .Zero(ZeroE), // Zero flag output from ALU
         .result(ALUResultE) // ALU result (not used in this stage)
     );
+
+    assign m_ext_validE = (instrE[6:0] == 7'b0110011) && (instrE[31:25] == 7'b0000001);
+    assign mul_ss_E = $signed(RD1E) * $signed(RD2E);
+    assign mul_uu_E = $unsigned(RD1E) * $unsigned(RD2E);
+    assign mul_su_E = $signed({{33{RD1E[31]}}, RD1E}) * $signed({33'b0, RD2E});
+
+    always_comb begin
+        unique case (instrE[14:12])
+            3'b000: m_ext_resultE = mul_ss_E[31:0];                  // MUL
+            3'b001: m_ext_resultE = mul_ss_E[63:32];                 // MULH
+            3'b010: m_ext_resultE = mul_su_E[63:32];                 // MULHSU
+            3'b011: m_ext_resultE = mul_uu_E[63:32];                 // MULHU
+            3'b100: begin                                           // DIV
+                if (RD2E == 32'b0)
+                    m_ext_resultE = 32'hFFFF_FFFF;
+                else if (RD1E == 32'h8000_0000 && RD2E == 32'hFFFF_FFFF)
+                    m_ext_resultE = 32'h8000_0000;
+                else
+                    m_ext_resultE = $signed(RD1E) / $signed(RD2E);
+            end
+            3'b101: begin                                           // DIVU
+                if (RD2E == 32'b0)
+                    m_ext_resultE = 32'hFFFF_FFFF;
+                else
+                    m_ext_resultE = $unsigned(RD1E) / $unsigned(RD2E);
+            end
+            3'b110: begin                                           // REM
+                if (RD2E == 32'b0)
+                    m_ext_resultE = RD1E;
+                else if (RD1E == 32'h8000_0000 && RD2E == 32'hFFFF_FFFF)
+                    m_ext_resultE = 32'b0;
+                else
+                    m_ext_resultE = $signed(RD1E) % $signed(RD2E);
+            end
+            3'b111: begin                                           // REMU
+                if (RD2E == 32'b0)
+                    m_ext_resultE = RD1E;
+                else
+                    m_ext_resultE = $unsigned(RD1E) % $unsigned(RD2E);
+            end
+            default: m_ext_resultE = 32'b0;
+        endcase
+    end
 
     // instantiate PCTarget unit
     riscv_pc_target pc_targetE (
@@ -143,6 +191,8 @@ module riscv_execute_stage (
 
             if (custom_result_validE) begin
                 ALUResultM <= custom_resultE;
+            end else if (m_ext_validE) begin
+                ALUResultM <= m_ext_resultE;
             end else begin
                 case(ImmPassE)
                     2'b01: ALUResultM <= ImmExtE;

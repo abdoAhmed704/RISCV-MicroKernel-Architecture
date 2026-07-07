@@ -1,19 +1,19 @@
 vlib work
 
 vlog \
-    ../compresed_decoder/riscv_core_compressed_decoder.sv \
-    ../riscv32_dynamicbranchprediction/risc_bht.v \
-    ../riscv32_dynamicbranchprediction/risc_btb.v \
-    ../riscv32_dynamicbranchprediction/risc_execute.v \
-    ../riscv32_dynamicbranchprediction/risc_fetch.v \
-    ../riscv32_dynamicbranchprediction/risc_top_branch.v \
-    ../tinyInferenceChip/control/controller_fsm.v \
-    ../tinyInferenceChip/registers/input_reg.sv \
-    ../tinyInferenceChip/registers/output_reg.sv \
-    ../tinyInferenceChip/registers/weight_reg.sv \
-    ../tinyInferenceChip/compute/pe.sv \
-    ../tinyInferenceChip/compute/systolic_4x4.sv \
-    ../tinyInferenceChip/compute/linear_classifier.sv \
+    ../compressed_decoder/riscv_core_compressed_decoder.sv \
+    ../dynamic_branch_prediction/risc_bht.sv \
+    ../dynamic_branch_prediction/risc_btb.sv \
+    ../dynamic_branch_prediction/risc_execute.sv \
+    ../dynamic_branch_prediction/risc_fetch.sv \
+    ../dynamic_branch_prediction/risc_top_branch.sv \
+    ../tiny_inference_chip/control/controller_fsm.sv \
+    ../tiny_inference_chip/registers/input_reg.sv \
+    ../tiny_inference_chip/registers/output_reg.sv \
+    ../tiny_inference_chip/registers/weight_reg.sv \
+    ../tiny_inference_chip/compute/pe.sv \
+    ../tiny_inference_chip/compute/systolic_4x4.sv \
+    ../tiny_inference_chip/compute/linear_classifier.sv \
     riscv_alu.sv \
     riscv_control_unit.sv \
     riscv_csr_unit.sv \

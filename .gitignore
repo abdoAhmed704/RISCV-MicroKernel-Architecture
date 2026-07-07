@@ -29,3 +29,6 @@ __pycache__/
 
 # Software compilation outputs
 sw/build/
+
+# Local backups of accidental nested Git metadata
+.nested_git_backups/
