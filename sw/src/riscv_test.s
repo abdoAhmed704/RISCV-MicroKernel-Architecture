@@ -173,20 +173,79 @@ poll_done:
     li    x30, 130
     bne   x14, x30, fail
 
+    # ---------------- RV32M multiply/divide/remainder ----------------
+    li    x31, 21
+    li    x1, -7
+    li    x2, 6
+    mul   x3, x1, x2            # low(-7 * 6) = -42
+    li    x30, -42
+    bne   x3, x30, fail
+
+    li    x31, 22
+    mulh  x4, x1, x2            # high signed(-7 * 6) = -1
+    li    x30, -1
+    bne   x4, x30, fail
+
+    li    x31, 23
+    mulhsu x5, x1, x2           # high signed(-7) * unsigned(6) = -1
+    li    x30, -1
+    bne   x5, x30, fail
+
+    li    x31, 24
+    mulhu x6, x1, x2            # high unsigned(0xfffffff9 * 6) = 5
+    li    x30, 5
+    bne   x6, x30, fail
+
+    li    x31, 25
+    li    x1, -42
+    li    x2, 5
+    div   x7, x1, x2            # -42 / 5 = -8
+    li    x30, -8
+    bne   x7, x30, fail
+
+    li    x31, 26
+    rem   x9, x1, x2            # -42 % 5 = -2
+    li    x30, -2
+    bne   x9, x30, fail
+
+    li    x31, 27
+    li    x1, 100
+    li    x2, 7
+    divu  x8, x1, x2            # 100 / 7 = 14
+    li    x30, 14
+    bne   x8, x30, fail
+
+    li    x31, 28
+    remu  x15, x1, x2           # 100 % 7 = 2
+    li    x30, 2
+    bne   x15, x30, fail
+
+    li    x31, 29
+    li    x1, 0x12345678
+    li    x2, 0
+    div   x16, x1, x2           # divide by zero quotient = -1
+    li    x30, -1
+    bne   x16, x30, fail
+
+    li    x31, 30
+    rem   x17, x1, x2           # remainder by zero = dividend
+    li    x30, 0x12345678
+    bne   x17, x30, fail
+
     # ---------------- Publish deterministic final register map ----------------
     li    x1,  0x11111111
     li    x2,  0x22222222
-    li    x3,  5
-    li    x4,  15
-    li    x5,  10
-    li    x6,  -5
-    li    x7,  320
-    li    x8,  -1
-    li    x9,  12
+    li    x3,  -42
+    li    x4,  -1
+    li    x5,  -1
+    li    x6,  5
+    li    x7,  -8
+    li    x8,  14
+    li    x9,  -2
     # x10-x14 keep tinyInference result: class, score0..score3
-    li    x15, 0xDEADB7FF
-    li    x16, 0x7F
-    li    x17, 0x7F
+    li    x15, 2
+    li    x16, -1
+    li    x17, 0x12345678
     li    x18, 0x8765
     li    x19, 0x8765
     li    x20, 0x7F
@@ -211,11 +270,11 @@ done:
     j     done
 
 # Expected final register map on success:
-# x00=00000000 x01=11111111 x02=22222222 x03=00000005
-# x04=0000000f x05=0000000a x06=fffffffb x07=00000140
-# x08=ffffffff x09=0000000c x10=00000003 x11=00000064
-# x12=0000006e x13=00000078 x14=00000082 x15=deadb7ff
-# x16=0000007f x17=0000007f x18=00008765 x19=00008765
+# x00=00000000 x01=11111111 x02=22222222 x03=ffffffd6
+# x04=ffffffff x05=ffffffff x06=00000005 x07=fffffff8
+# x08=0000000e x09=fffffffe x10=00000003 x11=00000064
+# x12=0000006e x13=00000078 x14=00000082 x15=00000002
+# x16=ffffffff x17=12345678 x18=00008765 x19=00008765
 # x20=0000007f x21=0000000c x22=0000000c x23=00000006
 # x24=00000006 x25=0000010e x26=0badcafe x27=13579bdf
 # x28=00000001 x29=00000005 x30=00000082 x31=feeddeed

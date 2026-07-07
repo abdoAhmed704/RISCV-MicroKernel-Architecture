@@ -14,7 +14,7 @@ if (-not (Test-Path "build")) {
 }
 
 Write-Host "Compiling riscv_test.s..." -ForegroundColor Cyan
-& $CC -march=rv32ic_zicsr -mabi=ilp32 -ffreestanding -nostdlib -c src/riscv_test.s -o build/riscv_test.o
+& $CC -march=rv32imc_zicsr -mabi=ilp32 -ffreestanding -nostdlib -c src/riscv_test.s -o build/riscv_test.o
 if ($LASTEXITCODE -ne 0) { Write-Error "Failed to compile riscv_test.s"; exit 1 }
 
 Write-Host "Linking..." -ForegroundColor Cyan
