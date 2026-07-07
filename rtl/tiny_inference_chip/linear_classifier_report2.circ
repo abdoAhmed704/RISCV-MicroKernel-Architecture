@@ -1,0 +1,299 @@
+<!-- 
+INSTRUCTIONS FOR CLAUDE:
+Hello! The user will provide this Markdown file to you to generate a polished, professional Word document or PDF report. 
+Please ensure the following when formatting the final document:
+1. Apply a professional, academic, or corporate report template (e.g., IEEE style or a modern corporate whitepaper style).
+2. Render the Mermaid diagrams into high-quality images or vector graphics.
+3. Ensure the tables are beautifully formatted with proper borders and header shading (similar to TerosHDL output).
+4. Maintain the structure, technical depth, and professional tone of the content. Feel free to refine the language slightly to make it flow perfectly for a formal report, ensuring that the tutorial-like explanations remain clear and engaging.
+-->
+
+# Custom AI Accelerator for Edge Inference
+## Comprehensive Documentation: From Processing Elements to a 4x4 Linear Classifier Core
+
+---
+
+## 1. Introduction: Inference on the Edge and AI Accelerators
+
+In recent years, the paradigm of artificial intelligence has shifted from centralized, cloud-based processing to **Edge AI**—performing machine learning inference directly on localized devices such as IoT sensors, wearables, and embedded systems. 
+
+**Motives behind Edge Inference:**
+- **Latency:** Real-time applications (e.g., autonomous systems, industrial monitoring) cannot afford the round-trip delay of sending data to the cloud.
+- **Bandwidth:** Transmitting high-bandwidth raw data (like audio or video) to the cloud is inefficient and costly.
+- **Privacy and Security:** Processing sensitive data locally prevents potential exposure during transmission.
+- **Power Efficiency:** Sending data wirelessly consumes significantly more power than local computation. 
+
+To achieve efficient edge inference, general-purpose processors are often insufficient. Neural network workloads primarily consist of Matrix-Vector and Matrix-Matrix multiplications, which are highly parallel but computationally dense. This is where **AI Accelerators** come into play. Dedicated hardware accelerators are designed to perform operations like Multiply-Accumulate (MAC) with extreme energy efficiency and throughput compared to standard CPUs.
+
+---
+
+## 2. What is a Systolic Array?
+
+A systolic array is a grid of simple Processing Elements (PEs) that pass data to their neighbors every clock cycle—like blood pumped rhythmically through a heart (hence "systolic"). The data flows through the array in a wave, and each PE performs a MAC operation as the data passes.
+
+### Systolic Array vs. Parallel MAC Array
+
+In a traditional parallel MAC array (or Von Neumann architecture), all computation units share a central memory bus. This creates a severe memory bandwidth bottleneck ("the memory wall") that limits scalability.
+
+A **Systolic Array** overcomes this:
+- **No Shared Bus:** Each PE only communicates with its immediate neighbors. This eliminates the memory bandwidth bottleneck entirely.
+- **Massive Scalability:** It can scale to grids of 256×256 or larger (like Google's TPU v1, which featured 65,536 MACs firing every cycle).
+- **Extreme Data Reuse:** Data fetched from memory is reused by multiple PEs as it travels through the array, leading to near-100% DSP utilization and high power efficiency.
+
+---
+
+## 3. Processing Element (PE) Design
+
+The Processing Element (PE) is the atomic unit of the systolic array. In our **Weight-Stationary** architecture, each PE is responsible for storing a single weight value locally. 
+
+During the computation phase, the PE receives an activation (`act_in`) from its left neighbor and a partial sum (`psum_in`) from its top neighbor. In a single clock cycle, it multiplies the activation by its stored weight, adds the result to the incoming partial sum, and registers the outputs to pass to the right (`act_out`) and bottom (`psum_out`) neighbors.
+
+### PE Block Diagram
+
+```mermaid
+graph LR
+    subgraph PE [Processing Element]
+        direction LR
+        act_in[act_in] --> MAC((MAC Unit))
+        psum_in[psum_in] --> MAC
+        
+        load_weight[load_weight] -.-> WReg[(Weight Register)]
+        weight_in[weight_in] -.-> WReg
+        WReg --> MAC
+        
+        MAC --> act_out[act_out]
+        MAC --> psum_out[psum_out]
+    end
+    
+    style MAC fill:#d63031,stroke:#ff7675,stroke-width:2px,color:white;
+    style WReg fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:white;
+```
+
+### Module: `pe` (TerosHDL Specification)
+
+#### Parameters
+
+| Name | Value | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `DW` | 8 | integer | Data width for inputs and weights (INT8). |
+| `AW` | 32 | integer | Accumulator width for partial sums. |
+
+#### Ports
+
+| Name | Direction | Width | Description |
+| :--- | :--- | :--- | :--- |
+| `clk` | input | 1 bit | System clock. |
+| `rst_n` | input | 1 bit | Active-low reset. |
+| `load_weight` | input | 1 bit | When high, the PE latches `weight_in` into its internal register. |
+| `weight_in` | input | `DW` bits | The weight value to be stored. |
+| `act_in` | input | `DW` bits | Activation coming from the left neighbor. |
+| `psum_in` | input | `AW` bits | Partial sum coming from the top neighbor. |
+| `act_out` | output | `DW` bits | Registered activation passed to the right neighbor. |
+| `psum_out`| output | `AW` bits | Registered partial sum passed to the bottom neighbor. |
+
+---
+
+## 4. Systolic Array Architecture (4x4)
+
+The PEs are tiled into a 2D grid. In our 4x4 array, 16 PEs work in unison to compute the dot product of an input feature vector and a weight matrix. 
+
+### Dataflow and Timing Analysis
+
+In large-scale continuous GEMM (General Matrix-Matrix Multiplication) engines, input data must be "skewed" (staggered with delay registers) so that corresponding rows and columns align dynamically as they flow through the array. 
+
+However, in our **Linear Classifier Core**, we are computing a single vector-matrix multiplication $y = x \cdot W$ per classification cycle. Therefore, our timing approach is optimized for static vector evaluation:
+1. **Stationary Weights:** The weight matrix is loaded once into the PEs via the `load_weight` signal.
+2. **Stationary Input Features:** The feature vector (`x`) is held steady at the left edge of the array. 
+3. **Propagation:** At each clock cycle, the feature values propagate rightward through the PEs, while partial sums ripple downward. 
+4. **Convergence:** For column $j$, it takes $j$ cycles for the activation to reach the top PE of that column, and $N$ cycles for the partial sum to drop to the bottom. Thus, column $j$ stabilizes after $N + j$ cycles. For our 4x4 array, the last column stabilizes at $4 + 3 = 7$ computation cycles.
+
+### Systolic Array Topology Diagram
+
+```mermaid
+graph TD
+    %% Inputs
+    in0((x[0])) --> PE00
+    in1((x[1])) --> PE10
+    in2((x[2])) --> PE20
+    in3((x[3])) --> PE30
+
+    %% Row 0
+    PE00[PE 0,0] -->|act| PE01[PE 0,1]
+    PE01 -->|act| PE02[PE 0,2]
+    PE02 -->|act| PE03[PE 0,3]
+
+    %% Row 1
+    PE10[PE 1,0] -->|act| PE11[PE 1,1]
+    PE11 -->|act| PE12[PE 1,2]
+    PE12 -->|act| PE13[PE 1,3]
+
+    %% Row 2
+    PE20[PE 2,0] -->|act| PE21[PE 2,1]
+    PE21 -->|act| PE22[PE 2,2]
+    PE22 -->|act| PE23[PE 2,3]
+
+    %% Row 3
+    PE30[PE 3,0] -->|act| PE31[PE 3,1]
+    PE31 -->|act| PE32[PE 3,2]
+    PE32 -->|act| PE33[PE 3,3]
+
+    %% Psum flows down
+    0_0((0)) --> PE00; 0_1((0)) --> PE01; 0_2((0)) --> PE02; 0_3((0)) --> PE03
+    PE00 -->|psum| PE10; PE01 -->|psum| PE11; PE02 -->|psum| PE12; PE03 -->|psum| PE13
+    PE10 -->|psum| PE20; PE11 -->|psum| PE21; PE12 -->|psum| PE22; PE13 -->|psum| PE23
+    PE20 -->|psum| PE30; PE21 -->|psum| PE31; PE22 -->|psum| PE32; PE23 -->|psum| PE33
+
+    %% Outputs
+    PE30 ==> psum_out0[[y[0]]]
+    PE31 ==> psum_out1[[y[1]]]
+    PE32 ==> psum_out2[[y[2]]]
+    PE33 ==> psum_out3[[y[3]]]
+    
+    classDef pe fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:white;
+    class PE00,PE01,PE02,PE03,PE10,PE11,PE12,PE13,PE20,PE21,PE22,PE23,PE30,PE31,PE32,PE33 pe;
+```
+
+### Module: `systolic_4x4` (TerosHDL Specification)
+
+#### Parameters
+
+| Name | Value | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `DW` | 8 | integer | Data width for inputs and weights (INT8). |
+| `AW` | 32 | integer | Accumulator width for partial sums. |
+| `N` | 4 | integer | Matrix dimension size (4x4). |
+
+#### Ports
+
+| Name | Direction | Width | Description |
+| :--- | :--- | :--- | :--- |
+| `clk` | input | 1 bit | System clock. |
+| `rst_n` | input | 1 bit | Active-low reset. |
+| `load_weight` | input | 1 bit | Broadcasts to all PEs to latch their respective weight. |
+| `weights` | input | `N`×`N`×`DW` | 2D array of weights mapped to the grid. |
+| `act_in` | input | `N`×`DW` | 1D array of input features applied to the left edge. |
+| `psum_out` | output | `N`×`AW` | 1D array of output dot products from the bottom edge. |
+
+---
+
+## 5. Memory, Control, and Full Core Integration
+
+To convert the raw systolic array into a functional standalone accelerator, we wrap it with Memory Buffers, an FSM Controller, and an Argmax block.
+
+### RISC-V Integration Context
+This `linear_classifier` core is intended to be coupled with a **RISC-V processor** as a custom coprocessor. By memory-mapping the register files or utilizing custom instructions (e.g., RoCC), the RISC-V CPU can offload classification tasks. The CPU streams the weights and features, pulses `start`, and later reads the `predicted_class` when `done` asserts, allowing the CPU to conserve power or execute parallel threads during the computation.
+
+### Top-Level Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph TopLevel ["Linear Classifier System Architecture"]
+        
+        subgraph ControlLayer ["Control & Sequencing"]
+            FSM[Controller FSM]
+        end
+        
+        subgraph MemoryLayer ["Memory Buffers"]
+            WReg[Weight Register File<br>4x4 INT8]
+            IReg[Input Register File<br>4x1 INT8]
+            OReg[Output Capture Register<br>4x1 32-bit]
+        end
+        
+        subgraph ComputeLayer ["Computation Core"]
+            SysArray[Weight-Stationary<br>Systolic Array 4x4]
+            ArgMax[Argmax Logic<br>Combinational]
+        end
+        
+        %% External Data flow
+        ExtW[wr_w_data] --> WReg
+        ExtI[wr_i_data] --> IReg
+        ExtStart[start] --> FSM
+        
+        %% Internal Data Flow
+        WReg -.->|w_matrix| SysArray
+        IReg -.->|x_vector| SysArray
+        SysArray ==>|psum_raw| OReg
+        OReg ==>|scores_captured| ArgMax
+        
+        %% Control Flow
+        FSM -->|load_weight| SysArray
+        FSM -->|capture| OReg
+        
+        %% Outputs
+        OReg ==> OutScores[scores out]
+        ArgMax --> OutClass[predicted_class out]
+        FSM --> OutDone[done out]
+    end
+
+    classDef memory fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:white;
+    classDef compute fill:#d63031,stroke:#ff7675,stroke-width:2px,color:white;
+    classDef control fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:white;
+    classDef io fill:#b2bec3,stroke:#dfe6e9,stroke-width:1px;
+
+    class WReg,IReg,OReg memory;
+    class SysArray,ArgMax compute;
+    class FSM control;
+    class ExtW,ExtI,ExtStart,OutScores,OutClass,OutDone io;
+```
+
+### Module: `linear_classifier` (TerosHDL Specification)
+
+#### Parameters
+
+| Name | Value | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `DW` | 8 | integer | Data width for inputs and weights (INT8). |
+| `AW` | 32 | integer | Accumulator width for the partial sums and final scores. |
+| `N` | 4 | integer | Array dimension. |
+
+#### Ports
+
+| Name | Direction | Width | Description |
+| :--- | :--- | :--- | :--- |
+| `clk` | input | 1 bit | System clock. |
+| `rst_n` | input | 1 bit | Active-low asynchronous reset. |
+| `wr_weight` | input | 1 bit | Write enable for the weight register file. |
+| `wr_w_row` | input | 2 bits | Row address for writing into the weight matrix. |
+| `wr_w_col` | input | 2 bits | Column address for writing into the weight matrix. |
+| `wr_w_data` | input | `DW` bits | Signed weight data to be written. |
+| `wr_input` | input | 1 bit | Write enable for the input feature register file. |
+| `wr_i_addr` | input | 2 bits | Address indicating which element of the feature vector to write. |
+| `wr_i_data` | input | `DW` bits | Signed feature data to be written. |
+| `start` | input | 1 bit | Control pulse to begin computation. |
+| `scores` | output | `N` × `AW` bits | Array of `N` calculated scores (dot product results). |
+| `predicted_class`| output | 2 bits | Index of the class with the maximum score (Argmax). |
+| `done` | output | 1 bit | Flag indicating the classification is complete. |
+
+### Controller State Machine (FSM)
+
+To ensure the pipeline completes smoothly, the FSM guarantees exactly $2N$ cycles for computation and array flushing. 
+
+```mermaid
+stateDiagram-v2
+    [*] --> S_IDLE
+    
+    S_IDLE --> S_LOAD_WEIGHTS : start == 1
+    S_LOAD_WEIGHTS --> S_COMPUTE : Unconditional
+    
+    S_COMPUTE --> S_COMPUTE : cycle_cnt < 7
+    S_COMPUTE --> S_CAPTURE : cycle_cnt == 7
+    
+    S_CAPTURE --> S_DONE : Unconditional
+    S_DONE --> S_IDLE : Unconditional
+    
+    note right of S_LOAD_WEIGHTS
+        Asserts `load_weight` 
+        to latch weights into PEs
+    end note
+    
+    note left of S_CAPTURE
+        Asserts `capture` 
+        to latch output scores into OReg
+    end note
+```
+
+1. **`S_LOAD_WEIGHTS`**: A 1-cycle state that asserts the `load_weight` flag, causing all PEs to latch the current values mapped from the `weight_reg`.
+2. **`S_COMPUTE`**: Holds for 8 clock cycles. The first cycle triggers computation, and the remaining 7 allow the final column to fully converge and stabilize.
+3. **`S_CAPTURE`**: Pulses the `capture` signal, latching the stable results from the bottom of the systolic array into the 32-bit `output_reg`.
+4. **Argmax Evaluation**: Performed purely combinationally in the top module across the outputs of the `output_reg`, instantly presenting the `predicted_class`.
+5. **`S_DONE`**: Asserts the `done` flag to notify the host CPU (e.g., RISC-V) that results are ready to be read.
