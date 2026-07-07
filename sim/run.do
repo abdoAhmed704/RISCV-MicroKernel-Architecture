@@ -1,6 +1,6 @@
 vlib work
 
-vlog ../rtl/RV32I/riscv_*.sv
+vlog ../rtl/compresed_decoder/riscv_core_compressed_decoder.sv ../rtl/riscv32_dynamicbranchprediction/*.v ../rtl/tinyInferenceChip/control/*.v ../rtl/tinyInferenceChip/registers/*.sv ../rtl/tinyInferenceChip/compute/pe.sv ../rtl/tinyInferenceChip/compute/systolic_4x4.sv ../rtl/tinyInferenceChip/compute/linear_classifier.sv ../rtl/RV32I/riscv_*.sv
 
 # simulate
 vsim -voptargs=+acc work.riscv_top_tb

@@ -30,6 +30,8 @@ module riscv_execute_stage (
     input logic        sretE,
     input logic        is_system_instrE,
     input logic        PCSrcE,
+    input logic        custom_result_validE,
+    input logic [31:0] custom_resultE,
 
     output logic  RegWriteM,
     output logic  [1:0] ResultSrcM,
@@ -89,7 +91,7 @@ module riscv_execute_stage (
     assign PCTargetE_new = (jalr_pcE)? ALUResultE: PCTargetE;
 
     logic instr_addr_misaligned_E;
-    assign instr_addr_misaligned_E = PCSrcE && (PCTargetE_new[1:0] != 2'b00);
+    assign instr_addr_misaligned_E = PCSrcE && (PCTargetE_new[0] != 1'b0);
 
     // Pipeline register for the execute stage to memory stage
     always @(posedge clk or negedge rst_n) begin
@@ -139,11 +141,15 @@ module riscv_execute_stage (
             sretM      <= sretE;
             is_system_instrM <= is_system_instrE;
 
-            case(ImmPassE)
-                2'b01: ALUResultM <= ImmExtE;
-                2'b10: ALUResultM <= PCTargetE;
-                default: ALUResultM <= ALUResultE;
-            endcase
+            if (custom_result_validE) begin
+                ALUResultM <= custom_resultE;
+            end else begin
+                case(ImmPassE)
+                    2'b01: ALUResultM <= ImmExtE;
+                    2'b10: ALUResultM <= PCTargetE;
+                    default: ALUResultM <= ALUResultE;
+                endcase
+            end
             // $display("mux signal = %h, ImmExtE=%h, PCTargetE =%h, ALUResultM=%h", ImmPassE, ImmExtE, PCTargetE, ALUResultM);
         end
     end

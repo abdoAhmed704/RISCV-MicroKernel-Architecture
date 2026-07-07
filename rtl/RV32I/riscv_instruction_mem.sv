@@ -14,7 +14,11 @@ module riscv_instruction_mem
   end
 
   always @(*) begin
-    inst = mem[PC >> 2]; // FIXED
+    if (PC[1] == 1'b1) begin
+      inst = {mem[((PC >> 2) + 1) < MEM_Depth ? ((PC >> 2) + 1) : 0][15:0], mem[PC >> 2][31:16]};
+    end else begin
+      inst = mem[PC >> 2];
+    end
   end
 
 endmodule         // no condition on reading form mem and its async

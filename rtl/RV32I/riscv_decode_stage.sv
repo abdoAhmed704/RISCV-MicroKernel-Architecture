@@ -137,7 +137,7 @@ module riscv_decode_stage (
         case (instrD[6:0])
             7'b0110011, 7'b0010011, 7'b1100011, 7'b0000011, 7'b0100011,
             7'b1101111, 7'b1100111, 7'b0110111, 7'b0010111, 7'b1110011,
-            7'b0001111: opcode_valid = 1'b1;
+            7'b0001111, 7'b0001011: opcode_valid = 1'b1;
             default:    opcode_valid = 1'b0;
         endcase
     end

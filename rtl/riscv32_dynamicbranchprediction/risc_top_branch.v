@@ -1,0 +1,88 @@
+
+
+
+module dynamic_branch_predictor_top (
+    input  wire        clk,
+    input  wire        rst_n,
+    
+    //  Interface ????? ??? Fetch (IF Stage) 
+    input  wire [31:0] fetch_pc,
+    output wire        predict_taken,
+    output wire [31:0] next_pc_prediction,
+    
+    //  Interface ????? ??? Execute (EX Stage) 
+    input  wire [31:0] exe_pc,            // ??? PC ?????? ???? ??????? ?????? ?? ??? Pipeline
+    input  wire        predict_taken_old, // ?????? ?????? ???? ????? ?? ??? Fetch ????? ?? ??? Pipeline
+    input  wire        exe_is_branch,     // 1 ?? ????? ?????? ?? ??? Execute ?? ????? ?????
+    input  wire        actual_taken,      // ??????? ???????? ???????? ?? ??? ALU (1: T, 0: NT)
+    input  wire [31:0] actual_target_pc,  // ??????? ?????? ?????? ???? ??????? ?????? (????? ?? ??? ALU)
+    
+    
+    output wire        flush_pipeline,   // ????? ?????? ??? Pipeline ?? ?????? ???
+    output wire [31:0] corrected_pc       // ??????? ?????? ???? ????? ??? PC ?????? ????? ?? ?????
+);
+
+    //  ????? ??????? ???????? ??? ???????? 
+    wire [31:0] predicted_target_pc;
+    wire [1:0]  current_counter;
+    wire [1:0]  next_counter;
+    wire        bht_write_en;
+    wire        btb_write_en;
+    wire        btb_hit;
+    wire        bht_predict_taken;
+
+
+    assign btb_hit = (predicted_target_pc != 32'b0);
+
+    // ???? ??? BHT (256 ??? × 2 ??)
+
+    bht_table u_bht_table (
+        .clk           (clk),
+        .rst_n         (rst_n),
+        .fetch_pc      (fetch_pc),
+        .predict_taken (bht_predict_taken),
+        .write_en      (bht_write_en),
+        .exe_pc        (exe_pc),
+        .write_counter (next_counter),
+        .exe_current_counter (current_counter)
+    );
+
+    // ???? ??? BTB (256 ??? × 32 ??)
+    btb_table u_btb_table (
+        .clk                 (clk),
+        .rst_n               (rst_n),
+        .fetch_pc            (fetch_pc),
+        .predicted_target_pc (predicted_target_pc),
+        .write_en            (btb_write_en),
+        .exe_pc              (exe_pc),
+        .actual_target_pc    (actual_target_pc)
+    );
+
+    
+    fetch_prediction_logic u_fetch_predict (
+        .fetch_pc            (fetch_pc),
+        .predict_taken       (bht_predict_taken),
+        .btb_hit             (btb_hit),
+        .predicted_target_pc (predicted_target_pc),
+        .take_branch_decision (predict_taken),
+        .next_pc_prediction  (next_pc_prediction)
+    );
+    
+    
+    execute_prediction_logic u_execute_predict (
+        .exe_pc              (exe_pc),
+        .predict_taken_old   (predict_taken_old),
+        .exe_is_branch       (exe_is_branch),
+        .actual_taken        (actual_taken),
+        .actual_target_pc    (actual_target_pc),
+        .current_counter     (current_counter),
+        .bht_write_en        (bht_write_en),
+        .btb_write_en        (btb_write_en),
+        .next_counter        (next_counter),
+        .flush_pipeline      (flush_pipeline),
+        .corrected_pc        (corrected_pc)
+    );
+
+    
+endmodule
+

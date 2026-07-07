@@ -135,6 +135,32 @@ logic target_taken;
 
 logic ZeroE;
 
+// ── Dynamic Branch Predictor signals ─────────────────────────────────────────
+logic        predict_takenF;       // BPU prediction at fetch time
+logic [31:0] next_pc_predictionF;  // BPU predicted target PC
+logic [31:0] PCFx_out;             // next PC before pipeline reg (from fetch)
+logic        predict_takenD;       // prediction propagated to decode stage
+logic        predict_takenE;       // prediction propagated to execute stage
+logic        mispredictionE;       // 1 when BPU was wrong at execute
+logic        bp_flush_pipeline;    // flush signal from branch predictor
+logic [31:0] bp_corrected_pc;      // corrected PC from branch predictor
+
+// ── AI Unit (Linear Classifier) signals ──────────────────────────────────────
+// Custom opcode 0x0B interface decoded from execute stage instruction
+logic        ai_wr_weight;
+logic [1:0]  ai_wr_w_row;
+logic [1:0]  ai_wr_w_col;
+logic [7:0]  ai_wr_w_data;
+logic        ai_wr_input;
+logic [1:0]  ai_wr_i_addr;
+logic [7:0]  ai_wr_i_data;
+logic        ai_start;
+logic [31:0] ai_scores [0:3];
+logic [1:0]  ai_predicted_class;
+logic        ai_done;
+logic        ai_read_validE;
+logic [31:0] ai_read_dataE;
+
 riscv_hazard_unit hu(
     .Rs1E(Rs1E), .Rs2E(Rs2E), .RdM(RdM), .RdW(RdW), .RegWriteM(RegWriteM), .RegWriteW(RegWriteW), .ResultSrcE_0(ResultSrcE[0]), 
     .RdE(RdE), .Rs1D(Rs1D), .Rs2D(Rs2D), .PCSrcE(PCSrcE), .FlushE(FlushE), .StallD(StallD), .StallF(StallF), .ForwardAE(ForwardAE), .ForwardBE(ForwardBE), .FlushD(FlushD)
@@ -143,12 +169,18 @@ riscv_hazard_unit hu(
 // PC target selection for fetch stage considering traps/returns
 logic [31:0] PCTargetE_to_fetch;
 logic PCSrcE_to_fetch;
-assign PCTargetE_to_fetch = o_csr_unit_mux1 ? (o_csr_unit_addr_ctrl ? o_csr_unit_irq_handler : o_csr_unit_rtrn_addr) : PCTargetE;
-assign PCSrcE_to_fetch = PCSrcE || o_csr_unit_mux1;
+assign PCTargetE_to_fetch = o_csr_unit_mux1 ? (o_csr_unit_addr_ctrl ? o_csr_unit_irq_handler : o_csr_unit_rtrn_addr) :
+                             (bp_flush_pipeline ? bp_corrected_pc : PCTargetE);
+assign PCSrcE_to_fetch = PCSrcE || bp_flush_pipeline || o_csr_unit_mux1;
 
 riscv_fetch_stage new_fet(
     .clk(clk), .rst_n(rst_n), .PCTargetE(PCTargetE_to_fetch), .PCSrcE(PCSrcE_to_fetch), .instrD(instrD),
-    .PCPlus4D(PCPlus4D), .PCD(PCD), .enable(!StallD), .CLR(FlushD || o_csr_unit_id_flush), .enable_pc(!StallF || o_csr_unit_mux1)
+    .PCPlus4D(PCPlus4D), .PCD(PCD), .enable(!StallD), .CLR(FlushD || bp_flush_pipeline || o_csr_unit_id_flush), .enable_pc(!StallF || o_csr_unit_mux1 || bp_flush_pipeline),
+    .predict_takenF(predict_takenF),
+    .next_pc_predictionF(next_pc_predictionF),
+    .PCFx_out(PCFx_out),
+    .PCF_out(),
+    .predict_takenD(predict_takenD)
 );
 
 riscv_decode_stage decode_stage_inst(
@@ -156,7 +188,7 @@ riscv_decode_stage decode_stage_inst(
     .RdW(RdW), .PCE(PCE), .PCPlus4E(PCPlus4E), .RegWriteE(RegWriteE), .ResultSrcE(ResultSrcE), .MemWriteE(MemWriteE),
     .jumpE(jumpE), .Branch_takenE(Branch_takenE), .BranchE(BranchE), .ALUControlE(ALUControlE), .ALUSrcE(ALUSrcE), .RD1E(RD1E), 
     .RD2E(RD2E), .ImmExtE(ImmExtE), .RdE(RdE),
-    .CLR(FlushE || o_csr_unit_exe_flush),
+    .CLR(FlushE || bp_flush_pipeline || o_csr_unit_exe_flush),
     .Rs1E(Rs1E),
     .Rs2E(Rs2E),
     .Rs1D(Rs1D),
@@ -179,6 +211,14 @@ riscv_decode_stage decode_stage_inst(
     .o_sretE(sretE),
     .o_is_system_instrE(is_system_instrE)
 );
+
+// Propagate branch prediction from D to E stage
+always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n || FlushE || o_csr_unit_exe_flush)
+        predict_takenE <= 1'b0;
+    else
+        predict_takenE <= predict_takenD;
+end
 
 riscv_mux_3_1 mux_alu_1(.A(RD1E), .B(result), .C(ALUResultM), .Sel(ForwardAE), .out(mux_R1_out));
 riscv_mux_3_1 mux_alu_2(.A(RD2E), .B(result), .C(ALUResultM), .Sel(ForwardBE), .out(mux_R2_out));
@@ -205,6 +245,8 @@ riscv_execute_stage execute_stage_inst(
     .sretE(sretE),
     .is_system_instrE(is_system_instrE),
     .PCSrcE(PCSrcE),
+    .custom_result_validE(ai_read_validE),
+    .custom_resultE(ai_read_dataE),
     .PCM(PCM),
     .instrM(instrM),
     .csr_opM(csr_opM),
@@ -300,6 +342,97 @@ riscv_mux_4_1 mux_w(
 riscv_pc_src_controller pcontrol (.ZeroE(ZeroE), .Branch_takenE(Branch_takenE), .BranchE(BranchE), .target_taken(target_taken));
 
 assign PCSrcE = target_taken || jumpE;
+
+// ── Branch predictor: misprediction detection ─────────────────────────────────
+// A branch misprediction occurs when:
+//  - The instruction in Execute is a branch (BranchE) AND
+//  - The actual outcome (target_taken) differs from the prediction (predict_takenE)
+assign mispredictionE = BranchE && (target_taken != predict_takenE);
+
+// ── Dynamic Branch Predictor ─────────────────────────────────────────────────
+dynamic_branch_predictor_top u_branch_pred (
+    .clk                (clk),
+    .rst_n              (rst_n),
+    // Fetch interface
+    .fetch_pc           (new_fet.PCF),           // Current PC in fetch
+    .predict_taken      (predict_takenF),
+    .next_pc_prediction (next_pc_predictionF),
+    // Execute feedback interface
+    .exe_pc             (PCE),                   // PC of instruction in execute
+    .predict_taken_old  (predict_takenE),         // What was predicted for this instr
+    .exe_is_branch      (BranchE),               // Is this a branch instruction?
+    .actual_taken       (target_taken),           // Actual branch outcome
+    .actual_target_pc   (PCTargetE),             // Actual branch target
+    // Outputs (flush/corrected_pc are handled by existing hazard logic via PCSrcE)
+    .flush_pipeline     (bp_flush_pipeline),
+    .corrected_pc       (bp_corrected_pc)
+);
+
+// ── AI (Linear Classifier) Unit ──────────────────────────────────────────────
+// Custom opcode 0x0B (opcode=0001011) instruction decode:
+//  funct3=000: lc.load_weight  rs2=data, rs1=index (row=bits[1:0], col=bits[3:2])
+//  funct3=001: lc.load_input   rs2=data, rs1=index (addr=bits[1:0])
+//  funct3=010: lc.start        (trigger computation)
+//  funct3=011: lc.read         rd=result, rs1=selector
+//                selector 0 → done flag
+//                selector 1 → predicted_class
+//                selector 2 → scores[0] ... selector 5 → scores[3]
+
+logic is_custom_E;
+assign is_custom_E = (instrE[6:0] == 7'b0001011);
+
+// AI write weight: funct3=000
+assign ai_wr_weight = is_custom_E && (instrE[14:12] == 3'b000) && (instrE[11:7] == 5'd0);
+assign ai_wr_w_row  = mux_R2_out[3:2];   // rs2 upper 2 bits = row
+assign ai_wr_w_col  = mux_R2_out[1:0];   // rs2 lower 2 bits = col
+assign ai_wr_w_data = mux_R1_out[7:0];   // rs1[7:0] = data value
+
+// AI write input: funct3=001
+assign ai_wr_input  = is_custom_E && (instrE[14:12] == 3'b001) && (instrE[11:7] == 5'd0);
+assign ai_wr_i_addr = mux_R2_out[1:0];   // rs2 lower 2 bits = address
+assign ai_wr_i_data = mux_R1_out[7:0];   // rs1[7:0] = data value
+
+// AI start pulse: funct3=010
+assign ai_start = is_custom_E && (instrE[14:12] == 3'b010);
+
+assign ai_read_validE = is_custom_E && (instrE[14:12] == 3'b011);
+
+always_comb begin
+    unique case (mux_R1_out[2:0])
+        3'd0: ai_read_dataE = {31'b0, ai_done};
+        3'd1: ai_read_dataE = {30'b0, ai_predicted_class};
+        3'd2: ai_read_dataE = ai_scores[0];
+        3'd3: ai_read_dataE = ai_scores[1];
+        3'd4: ai_read_dataE = ai_scores[2];
+        3'd5: ai_read_dataE = ai_scores[3];
+        default: ai_read_dataE = 32'b0;
+    endcase
+end
+
+// AI read result: funct3=011 — drives ALU result back to register file
+// The result is muxed into the writeback path; rd must be non-zero
+// The ALU result for custom instructions is handled in the execute stage
+// by default (ALUOp=00 → ADD → RD1E+RD2E=0+0=0 normally, but we override here)
+
+linear_classifier #(.DW(8), .AW(32), .N(4)) u_linear_classifier (
+    .clk             (clk),
+    .rst_n           (rst_n),
+    // Weight write
+    .wr_weight       (ai_wr_weight),
+    .wr_w_row        (ai_wr_w_row),
+    .wr_w_col        (ai_wr_w_col),
+    .wr_w_data       (ai_wr_w_data),
+    // Input write
+    .wr_input        (ai_wr_input),
+    .wr_i_addr       (ai_wr_i_addr),
+    .wr_i_data       (ai_wr_i_data),
+    // Control
+    .start           (ai_start),
+    // Outputs
+    .scores          (ai_scores),
+    .predicted_class (ai_predicted_class),
+    .done            (ai_done)
+);
 
 // ── Interrupt acknowledge output ──────────────────────────────────────────
 // Exposed at top level so an external interrupt controller (PLIC) can

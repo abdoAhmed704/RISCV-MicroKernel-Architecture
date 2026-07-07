@@ -1,1 +1,0 @@
--debug "typical" "work.riscv_top_tb" -s "riscv_sim" 

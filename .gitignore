@@ -1,0 +1,31 @@
+# MS Word document files and temp files
+*.docx
+*.tmp.docx
+*~*.docx
+
+# Project Book files and generated media
+book.md
+chapter_*.md
+build/
+
+# ModelSim / QuestaSim Simulation Artifacts
+work/
+*.wlf
+wlft*
+*.cr.mti
+*.mpf
+transcript
+
+# Xilinx Vivado/Xsim Simulation Artifacts
+xsim.dir/
+*.log
+*.jou
+*.pb
+*.wdb
+
+# Python compilation cache
+__pycache__/
+*.pyc
+
+# Software compilation outputs
+sw/build/

@@ -13,11 +13,11 @@ if (-not (Test-Path "build")) {
 }
 
 Write-Host "Compiling start.s..."
-& $CC -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib -c src/start.s -o build/start.o
+& $CC -march=rv32ic_zicsr -mabi=ilp32 -ffreestanding -nostdlib -c src/start.s -o build/start.o
 if ($LASTEXITCODE -ne 0) { Write-Error "Failed to compile start.s"; exit 1 }
 
 Write-Host "Compiling main.c..."
-& $CC -march=rv32i_zicsr -mabi=ilp32 -ffreestanding -nostdlib -O1 -c src/main.c -o build/main.o
+& $CC -march=rv32ic_zicsr -mabi=ilp32 -ffreestanding -nostdlib -O1 -c src/main.c -o build/main.o
 if ($LASTEXITCODE -ne 0) { Write-Error "Failed to compile main.c"; exit 1 }
 
 Write-Host "Linking..."

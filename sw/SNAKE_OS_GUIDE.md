@@ -73,16 +73,15 @@ Terminal 1, start the keyboard feeder:
 python sw/play_game.py
 ```
 
-Keep this terminal focused when you want to press keys. Do not type `W`, `A`, `S`, or `D` at the `VSIM>` prompt; that prompt is the simulator command console, not the game keyboard input.
+Keep this terminal focused when you want to press keys. The Python script captures your keyboard inputs and writes them to a file for the simulation to read.
 
-Terminal 2, run the RTL simulation from `rtl/RV32I`:
+Terminal 2, run the RTL simulation from the repository root:
 
 ```powershell
-cd rtl/RV32I
-vsim -c -do "vlib work; vlog *.sv; vsim riscv_top_tb; run -all"
+.\run_xsim.bat
 ```
 
-The simulation now runs until you stop it manually. Press `Ctrl+C` in the simulator terminal or use the Questa `stop`/`quit` commands when you are done.
+The simulation now runs until you stop it manually. Press `Ctrl+C` in the simulator terminal when you are done.
 
 Controls:
 
@@ -109,3 +108,37 @@ The screen uses ANSI clear/home escape sequences. If your simulator console does
 5. Add task control blocks with separate stacks.
 6. Add a real user-mode transition path.
 7. Delegate selected traps to S-mode once S-mode is stable.
+
+graph TD
+    %% Styling
+    classDef software fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc;
+    classDef hardware fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#f8fafc;
+    classDef io fill:#b45309,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
+
+    subgraph Host OS Environment
+      UserKeyboard[User Keyboard Input]
+      PythonFeeder[sw/play_game.py]:::software
+      InputTxt[sw/input.txt]:::io
+    end
+
+    subgraph Hardware Simulation Layer (Vivado xsim)
+      TB[riscv_top_tb.sv]:::hardware
+      Pipeline[riscv_top_pipeline.sv]:::hardware
+      DMEM[riscv_data_mem.sv]:::hardware
+      TerminalStdout[Terminal Console Out]:::io
+    end
+
+    subgraph Bare-Metal Software Stack (RV32I)
+      StartS[start.s Bootstrap]:::software
+      MainC[main.c Snake OS Kernel]:::software
+    end
+
+    %% Data Connections
+    UserKeyboard -->|Raw Keystrokes| PythonFeeder
+    PythonFeeder -->|Writes ASCII char| InputTxt
+    DMEM -->|Polls/Clears file via $fopen| InputTxt
+    Pipeline -->|Loads/Stores| DMEM
+    StartS -->|Calls| MainC
+    MainC -->|Store Byte to 0x00003FF0| DMEM
+    MainC -->|Load Byte from 0x00003FF0| DMEM
+    DMEM -->|SystemVerilog $write| TerminalStdout

@@ -102,6 +102,13 @@ module riscv_control_unit (
                 RegWrite   = 1'b1; 
                 ImmPass    = 2'b10;
             end
+
+            7'b0001011: begin // Custom-0: Linear Classifier Instructions
+                RegWrite   = (funct3 == 3'b011); // Only lc.read writes back to rd
+                ALUSrc     = 1'b0; // Use registers for operands (rs1 and rs2)
+                ResultSrc  = 2'b00; // ALUResult path for writeback
+                ALUOp      = 2'b00; // Forces default/add operation
+            end
             
             7'b1110011: begin // SYSTEM Instructions (ECALL, EBREAK, CSRs)
                 is_system_instr = 1'b1;

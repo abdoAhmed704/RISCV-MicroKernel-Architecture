@@ -19,9 +19,17 @@ m_trap_handler:
     srli a0, a0, 31         # Extract MSB (interrupt bit)
     bnez a0, m_int_handler  # If interrupt, handle it
     
-    # Exception: increment mepc by 4 to skip the trapping instruction
+    # Exception: increment mepc by 2 or 4 to skip the trapping instruction
     csrr a0, mepc
-    addi a0, a0, 4
+    lhu t6, 0(a0)            # load 16-bit instruction at mepc
+    andi t6, t6, 3           # extract lowest 2 bits
+    li a7, 3                 # check if uncompressed (3)
+    beq t6, a7, m_32bit
+    addi a0, a0, 2           # compressed: add 2
+    j m_set_epc
+m_32bit:
+    addi a0, a0, 4           # uncompressed: add 4
+m_set_epc:
     csrw mepc, a0
     
     # Mark that M-mode trap occurred
@@ -66,9 +74,17 @@ s_trap_handler:
     srli a0, a0, 31
     bnez a0, s_int_handler
     
-    # Exception: increment sepc by 4
+    # Exception: increment sepc by 2 or 4
     csrr a0, sepc
-    addi a0, a0, 4
+    lhu t6, 0(a0)            # load 16-bit instruction at sepc
+    andi t6, t6, 3           # extract lowest 2 bits
+    li a7, 3                 # check if uncompressed (3)
+    beq t6, a7, s_32bit
+    addi a0, a0, 2           # compressed: add 2
+    j s_set_epc
+s_32bit:
+    addi a0, a0, 4           # uncompressed: add 4
+s_set_epc:
     csrw sepc, a0
     
     # Mark S-mode trap occurred
