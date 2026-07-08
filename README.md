@@ -16,7 +16,7 @@ A complete co-design hardware-software system built around an advanced bare-meta
     *   **Writeback (WB):** Selects register write data (ALU, Memory Read, or PC + 4) via `riscv_mux_3_1.sv`.
 *   **Register File:** 32 x 32-bit register array with write-on-falling-edge (negedge) to enable same-cycle bypassing. Register `x0` is hardwired to zero.
 
-### Hazard Management
+### Hazard Management Unit
 *   **Data Hazard Resolution:** Forwarding logic handles RAW (Read-After-Write) dependencies from the Memory (MEM) and Writeback (WB) stages to the Execute (EX) stage, eliminating pipeline bubbles. Managed by `riscv_hazard_unit.sv`.
 *   **Load-Use Stall Logic:** Detects back-to-back Load-to-Use hazards, stalling the Fetch and Decode stages and flushing the Execute stage.
 *   **Control Hazard Resolution:** Flushes instruction registers in Fetch/Decode on branch mispredictions or jumps, preventing speculative execution errors.
