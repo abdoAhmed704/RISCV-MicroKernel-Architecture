@@ -155,7 +155,7 @@ logic        ai_wr_input;
 logic [1:0]  ai_wr_i_addr;
 logic [7:0]  ai_wr_i_data;
 logic        ai_start;
-logic [31:0] ai_scores [0:3];
+logic signed [31:0]  ai_scores [0:3];
 logic [1:0]  ai_predicted_class;
 logic        ai_done;
 logic        ai_read_validE;

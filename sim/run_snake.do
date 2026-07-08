@@ -30,21 +30,21 @@ vlog ../rtl/compressed_decoder/riscv_core_compressed_decoder.sv ^
   ../rtl/RV32I/riscv_execute_stage.sv ^
   ../rtl/RV32I/riscv_memory_stage.sv ^
   ../rtl/RV32I/riscv_top_pipeline.sv ^
-  ../rtl/RV32I/riscv_top_tb.sv
+  ../rtl/RV32I/riscv_top_tb_snake.sv
 
 # simulate
-vsim -voptargs=+acc work.riscv_top_tb
+vsim -voptargs=+acc work.riscv_top_tb_snake
 
 # add waves
 add wave *
 
 add wave -position insertpoint  \
-sim:/riscv_top_tb/top_ins/PCD \
-sim:/riscv_top_tb/top_ins/PCE \
-sim:/riscv_top_tb/top_ins/PCPlus4D \
-sim:/riscv_top_tb/top_ins/PCPlus4E \
-sim:/riscv_top_tb/top_ins/PCPlus4M \
-sim:/riscv_top_tb/top_ins/PCPlus4W
+sim:/riscv_top_tb_snake/top_ins/PCD \
+sim:/riscv_top_tb_snake/top_ins/PCE \
+sim:/riscv_top_tb_snake/top_ins/PCPlus4D \
+sim:/riscv_top_tb_snake/top_ins/PCPlus4E \
+sim:/riscv_top_tb_snake/top_ins/PCPlus4M \
+sim:/riscv_top_tb_snake/top_ins/PCPlus4W
 
 # run simulation
 run -all

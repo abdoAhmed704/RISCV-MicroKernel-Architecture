@@ -1,11 +1,11 @@
 @echo off
 rem =====================================================================
-rem Vivado xsim Simulation Compilation and Run Script
+rem Vivado xsim Simulation Compilation and Run Script for Snake Game
 rem =====================================================================
 
 set VIVADO_BIN=C:\Xilinx\Vivado\2018.2\bin
 
-echo Compiling SystemVerilog files...
+echo Compiling SystemVerilog files for Snake Game...
 call %VIVADO_BIN%\xvlog.bat -sv ^
   rtl\compressed_decoder\riscv_core_compressed_decoder.sv ^
   rtl\dynamic_branch_prediction\risc_bht.sv ^
@@ -37,18 +37,18 @@ call %VIVADO_BIN%\xvlog.bat -sv ^
   rtl\RV32I\riscv_execute_stage.sv ^
   rtl\RV32I\riscv_memory_stage.sv ^
   rtl\RV32I\riscv_top_pipeline.sv ^
-  rtl\RV32I\riscv_top_tb.sv
+  rtl\RV32I\riscv_top_tb_snake.sv
 if %errorlevel% neq 0 (
     echo xvlog compilation failed!
     exit /b %errorlevel%
 )
 
-echo Elaborating design...
-call %VIVADO_BIN%\xelab.bat -debug typical work.riscv_top_tb -s riscv_sim
+echo Elaborating design for Snake Game...
+call %VIVADO_BIN%\xelab.bat -debug typical work.riscv_top_tb_snake -s riscv_sim_snake
 if %errorlevel% neq 0 (
     echo xelab elaboration failed!
     exit /b %errorlevel%
 )
 
-echo Starting Vivado simulation...
-call %VIVADO_BIN%\xsim.bat riscv_sim -runall
+echo Starting Vivado simulation for Snake Game...
+call %VIVADO_BIN%\xsim.bat riscv_sim_snake -runall
