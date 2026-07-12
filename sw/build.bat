@@ -1,8 +1,16 @@
 @echo off
-set "ToolchainPath=C:\Users\ABDOU\Desktop\GP_folder\RISC-V\riscv-toolchain\xpack-riscv-none-elf-gcc-15.2.0-1\bin"
-set "CC=%ToolchainPath%\riscv-none-elf-gcc.exe"
-set "LD=%ToolchainPath%\riscv-none-elf-ld.exe"
-set "OBJDUMP=%ToolchainPath%\riscv-none-elf-objdump.exe"
+set "ToolchainPath=..\..\..\riscv-toolchain\xpack-riscv-none-elf-gcc-15.2.0-1\bin"
+
+where /q riscv-none-elf-gcc
+if errorlevel 1 (
+    set "CC=%ToolchainPath%\riscv-none-elf-gcc.exe"
+    set "LD=%ToolchainPath%\riscv-none-elf-ld.exe"
+    set "OBJDUMP=%ToolchainPath%\riscv-none-elf-objdump.exe"
+) else (
+    set "CC=riscv-none-elf-gcc"
+    set "LD=riscv-none-elf-ld"
+    set "OBJDUMP=riscv-none-elf-objdump"
+)
 
 if not exist build mkdir build
 

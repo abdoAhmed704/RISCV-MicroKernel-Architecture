@@ -648,7 +648,7 @@ This instruction compiles to the machine code **`32'h34009173`**. Let's trace ho
 ### 1. Instruction Fetch (IF Stage) — Cycle 1
 * **Active PC:** `PCF = 0x00000008` (the 3rd instruction address).
 * **Action:** 
-  1. The instruction memory [riscv_instruction_mem.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_instruction_mem.sv) reads `0x00000008` and outputs the instruction word `instrF = 32'h34009173`.
+  1. The instruction memory [riscv_instruction_mem.sv](riscv_instruction_mem.sv) reads `0x00000008` and outputs the instruction word `instrF = 32'h34009173`.
   2. The adder computes `PCPlus4F = PCF + 4 = 0x0000000C`.
 * **Next Clock Edge (posedge clk):**
   * `PCF` updates to `0x0000000C` for the next instruction.
@@ -668,7 +668,7 @@ This instruction compiles to the machine code **`32'h34009173`**. Let's trace ho
   * Target CSR Address (`instrD[31:20]`) = `12'h340` (`mscratch`)
 * **Action:**
   1. **Register File Read:** Reads register `x1` (which contains `0x00000055` from the previous instruction). The output wire `RD1` gets `0x00000055`.
-  2. **Control Unit Decoding:** The Control Unit [riscv_control_unit.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_control_unit.sv) and Decode Stage decode the SYSTEM opcode:
+  2. **Control Unit Decoding:** The Control Unit [riscv_control_unit.sv](riscv_control_unit.sv) and Decode Stage decode the SYSTEM opcode:
      * `RegWriteD = 1` (will write the old CSR value to `x2`)
      * `ResultSrcD = 2'b11` (routes the output of the CSR read block to the writeback multiplexer)
      * `csr_wenD = 1` (enables writes to the CSR)
@@ -728,7 +728,7 @@ This is the stage where the **CSR Unit (`riscv_csr_unit.sv`)** actually updates 
   2. It selects the 4th input `CSRRDataW` (`32'h00000000`) and outputs it on the `result` wire.
   3. The `result` wire (`32'h00000000`) is connected back to the register file's write port `WD3`, and `RdW` (`5'd2`) is connected to the write address port `A3`.
 * **On negedge clk (falling edge of the clock):**
-  * The register file [riscv_register_file.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_register_file.sv) writes the value to register `x2`:
+  * The register file [riscv_register_file.sv](riscv_register_file.sv) writes the value to register `x2`:
     * `registers[2] <= 32'h00000000`.
 
 ---

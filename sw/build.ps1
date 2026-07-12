@@ -2,10 +2,16 @@
 # RISC-V RV32I Bare-Metal Build Script
 # ==============================================================
 
-$ToolchainPath = "C:/Users/ABDOU/Desktop/GP_folder/RISC-V/riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin/"
-$CC = "${ToolchainPath}riscv-none-elf-gcc.exe"
-$LD = "${ToolchainPath}riscv-none-elf-ld.exe"
-$OBJDUMP = "${ToolchainPath}riscv-none-elf-objdump.exe"
+if (Get-Command "riscv-none-elf-gcc" -ErrorAction SilentlyContinue) {
+    $CC = "riscv-none-elf-gcc"
+    $LD = "riscv-none-elf-ld"
+    $OBJDUMP = "riscv-none-elf-objdump"
+} else {
+    $ToolchainPath = "../../../riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin/"
+    $CC = "${ToolchainPath}riscv-none-elf-gcc.exe"
+    $LD = "${ToolchainPath}riscv-none-elf-ld.exe"
+    $OBJDUMP = "${ToolchainPath}riscv-none-elf-objdump.exe"
+}
 
 # Create build directory if it doesn't exist
 if (-not (Test-Path "build")) {

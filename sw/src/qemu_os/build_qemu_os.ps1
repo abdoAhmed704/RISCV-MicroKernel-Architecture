@@ -3,12 +3,18 @@
 
 $ErrorActionPreference = "Stop"
 
-# Toolchain
-$BIN  = "C:\Users\ABDOU\Desktop\GP_folder\RISC-V\riscv-toolchain\xpack-riscv-none-elf-gcc-15.2.0-1\bin"
-$CC   = "$BIN\riscv-none-elf-gcc.exe"
-$LD   = "$BIN\riscv-none-elf-ld.exe"
-$OBJCOPY = "$BIN\riscv-none-elf-objcopy.exe"
-$OBJDUMP = "$BIN\riscv-none-elf-objdump.exe"
+if (Get-Command "riscv-none-elf-gcc" -ErrorAction SilentlyContinue) {
+    $CC = "riscv-none-elf-gcc"
+    $LD = "riscv-none-elf-ld"
+    $OBJCOPY = "riscv-none-elf-objcopy"
+    $OBJDUMP = "riscv-none-elf-objdump"
+} else {
+    $BIN  = "../../../../../riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin"
+    $CC   = "$BIN\riscv-none-elf-gcc.exe"
+    $LD   = "$BIN\riscv-none-elf-ld.exe"
+    $OBJCOPY = "$BIN\riscv-none-elf-objcopy.exe"
+    $OBJDUMP = "$BIN\riscv-none-elf-objdump.exe"
+}
 
 # Compiler / linker flag strings (expanded inline)
 $MFLAGS = @("-march=rv32ima_zicsr", "-mabi=ilp32")

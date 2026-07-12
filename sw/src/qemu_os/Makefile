@@ -13,12 +13,26 @@
 #   make clean    — remove build artefacts
 # =============================================================================
 
-# ── Toolchain path (matches the xPack install used by build.ps1) ───────────
-TOOLCHAIN := C:/Users/ABDOU/Desktop/GP_folder/RISC-V/riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin
-CC        := $(TOOLCHAIN)/riscv-none-elf-gcc.exe
-LD        := $(TOOLCHAIN)/riscv-none-elf-ld.exe
-OBJCOPY   := $(TOOLCHAIN)/riscv-none-elf-objcopy.exe
-OBJDUMP   := $(TOOLCHAIN)/riscv-none-elf-objdump.exe
+# Check if riscv-none-elf-gcc is available on system PATH, otherwise fall back.
+ifeq ($(shell riscv-none-elf-gcc --version 2> /dev/null),)
+  ifeq ($(shell where riscv-none-elf-gcc 2>nul),)
+    TOOLCHAIN := ../../../../../riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin
+    CC        := $(TOOLCHAIN)/riscv-none-elf-gcc.exe
+    LD        := $(TOOLCHAIN)/riscv-none-elf-ld.exe
+    OBJCOPY   := $(TOOLCHAIN)/riscv-none-elf-objcopy.exe
+    OBJDUMP   := $(TOOLCHAIN)/riscv-none-elf-objdump.exe
+  else
+    CC        := riscv-none-elf-gcc
+    LD        := riscv-none-elf-ld
+    OBJCOPY   := riscv-none-elf-objcopy
+    OBJDUMP   := riscv-none-elf-objdump
+  endif
+else
+  CC        := riscv-none-elf-gcc
+  LD        := riscv-none-elf-ld
+  OBJCOPY   := riscv-none-elf-objcopy
+  OBJDUMP   := riscv-none-elf-objdump
+endif
 
 # ── Compiler flags ─────────────────────────────────────────────────────────
 #   -march=rv32ima_zicsr   — RV32 base + M(mul/div) + A(atomics) + Zicsr

@@ -10,7 +10,10 @@ module riscv_instruction_mem
     // Point this path to the .hex file you just generated
     for (int i = 0; i < MEM_Depth; i++) mem[i] = 32'h0;
 
-    $readmemh("C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/build/firmware.hex", mem);
+    $readmemh("sw/build/firmware.hex", mem);
+    if (mem[0] == 32'h0) begin
+      $readmemh("../../sw/build/firmware.hex", mem);
+    end
   end
 
   always @(*) begin

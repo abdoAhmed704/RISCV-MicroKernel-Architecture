@@ -1,6 +1,6 @@
 # CSR Unit Port-by-Port Signal Tracing
 
-This document provides a precise, port-by-port trace of the `riscv_csr_unit` instantiation in [riscv_top_pipeline.sv](file:///c:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_pipeline.sv). It explains where every input signal originates (from Fetch down to Memory) and where every output signal goes to redirect/flush the pipeline.
+This document provides a precise, port-by-port trace of the `riscv_csr_unit` instantiation in [riscv_top_pipeline.sv](riscv_top_pipeline.sv). It explains where every input signal originates (from Fetch down to Memory) and where every output signal goes to redirect/flush the pipeline.
 
 ---
 

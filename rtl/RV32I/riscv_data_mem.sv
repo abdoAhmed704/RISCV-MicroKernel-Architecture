@@ -46,14 +46,20 @@ module riscv_data_mem #(
             uart_poll_ctr <= 0;
             begin
                 integer fd, ch, clear_fd;
-                fd = $fopen("C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/input.txt", "r");
+                fd = $fopen("sw/input.txt", "r");
+                if (fd == 0) begin
+                    fd = $fopen("../../sw/input.txt", "r");
+                end
                 if (fd != 0) begin
                     ch = $fgetc(fd);
                     $fclose(fd);
                     if (ch >= 0) begin
                         uart_rx_cache <= ch[7:0];
                         uart_rx_valid <= 1'b1;
-                        clear_fd = $fopen("C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/input.txt", "w");
+                        clear_fd = $fopen("sw/input.txt", "w");
+                        if (clear_fd == 0) begin
+                            clear_fd = $fopen("../../sw/input.txt", "w");
+                        end
                         if (clear_fd != 0) $fclose(clear_fd);
                     end
                 end

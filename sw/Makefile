@@ -1,7 +1,16 @@
 # ==============================================================
 # RISC-V RV32I Bare-Metal Makefile
 # ==============================================================
-CROSS = C:/Users/ABDOU/Desktop/GP_folder/RISC-V/riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin/riscv-none-elf-
+# Check if riscv-none-elf-gcc is available on system PATH, otherwise fall back.
+ifeq ($(shell riscv-none-elf-gcc --version 2> /dev/null),)
+  ifeq ($(shell where riscv-none-elf-gcc 2>nul),)
+    CROSS = ../../../riscv-toolchain/xpack-riscv-none-elf-gcc-15.2.0-1/bin/riscv-none-elf-
+  else
+    CROSS = riscv-none-elf-
+  endif
+else
+  CROSS = riscv-none-elf-
+endif
 
 
 CC      = $(CROSS)gcc

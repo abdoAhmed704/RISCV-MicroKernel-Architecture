@@ -158,7 +158,7 @@ Three windows fill the 80×24 screen:
 ### Toolchain
 The same **xPack RISC-V GCC** toolchain used by the main project:
 ```
-C:\Users\ABDOU\Desktop\GP_folder\RISC-V\riscv-toolchain\xpack-riscv-none-elf-gcc-15.2.0-1\bin\
+C:\path\to\toolchain\bin\
 ```
 No extra tools are needed; the build script uses the same `riscv-none-elf-gcc.exe` and `riscv-none-elf-ld.exe`.
 
@@ -182,7 +182,7 @@ Open **Windows Terminal** (or any terminal with PowerShell), then:
 
 ```powershell
 # Navigate into the OS source directory
-cd C:\Users\ABDOU\Desktop\GP_folder\RISC-V\repos\RISCV-MicroKernel-Architecture\sw\src\qemu_os
+cd sw/src/qemu_os
 
 # Run the build script
 powershell -ExecutionPolicy Bypass -File .\build_qemu_os.ps1
