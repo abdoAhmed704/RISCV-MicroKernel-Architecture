@@ -238,7 +238,9 @@ static void render_board(void)
 
 static void clock_task(void)
 {
-    tick_count++;
+    if (!game_over) {
+        tick_count++;
+    }
 }
 
 #define PLATFORM_ADDR ((volatile unsigned int *)0x00003FFC)
@@ -267,9 +269,11 @@ int main(void)
 
     while (1) {
         handle_input();
-        game_step();
-        clock_task();
-        render_board();
+        if (!game_over) {
+            game_step();
+            clock_task();
+            render_board();
+        }
         delay();
     }
 }

@@ -1,198 +1,286 @@
-# RISC-V Microkernel and Hardware-Software System
+# From Gates to Games: RISC-V CPU Co-Design & Microkernel OS
 
-A complete co-design hardware-software system built around an advanced bare-metal RISC-V (RV32I) 5-stage pipelined processor core. This repository features a fully integrated pipeline, a hardware Privilege and CSR unit, a custom microkernel nano-OS, a real-time Snake game, and verification tools including a visual web-based system emulator.
+A complete, production-grade **hardware-software co-design platform** built from the register-transfer level (SystemVerilog) up to bare-metal operating system microkernels, interactive visual applications, and custom hardware accelerators.
 
----
-
-## Core Architecture and Features
-
-### 5-Stage Pipelined Processor Core
-*   **ISA Support:** Complete RV32I Base Integer Instruction Set (37 instructions), including computational, load/store, control transfer, and system operations.
-*   **Pipeline Stages:**
-    *   **Fetch (IF):** Program counter (PC) logic with pipeline registers, stalling, and branch/jump flushes. Instantiates `riscv_instruction_mem.sv`.
-    *   **Decode (ID):** Instruction decoding, immediate extensions, register file reads, and pipeline control signals. Instantiates `riscv_register_file.sv`, `riscv_control_unit.sv`, and `riscv_extend.sv`.
-    *   **Execute (EX):** Houses the ALU, PC target calculators, and input bypass multiplexers. Instantiates `riscv_alu.sv` and `riscv_pc_target.sv`.
-    *   **Memory (MEM):** Handles data memory access for word, half-word, and byte read/write operations (both signed and unsigned). Instantiates `riscv_data_mem.sv`.
-    *   **Writeback (WB):** Selects register write data (ALU, Memory Read, or PC + 4) via `riscv_mux_3_1.sv`.
-*   **Register File:** 32 x 32-bit register array with write-on-falling-edge (negedge) to enable same-cycle bypassing. Register `x0` is hardwired to zero.
-
-### Hazard Management Unit
-*   **Data Hazard Resolution:** Forwarding logic handles RAW (Read-After-Write) dependencies from the Memory (MEM) and Writeback (WB) stages to the Execute (EX) stage, eliminating pipeline bubbles. Managed by `riscv_hazard_unit.sv`.
-*   **Load-Use Stall Logic:** Detects back-to-back Load-to-Use hazards, stalling the Fetch and Decode stages and flushing the Execute stage.
-*   **Control Hazard Resolution:** Flushes instruction registers in Fetch/Decode on branch mispredictions or jumps, preventing speculative execution errors.
-
-### Privilege and CSR Architecture
-*   **CSR Unit:** Supports Machine (M-mode) and Supervisor (S-mode) privilege modes. Registers include `mstatus`, `mtvec`, `mepc`, `mcause`, `stvec`, `sepc`, and `scause`. Managed in `riscv_csr_unit.sv`.
-*   **Trap Handling:** Implements hardware-driven exception redirection, privilege stacking, and recovery routines (`ecall`, `ebreak`, `mret`, `sret`) to enable operating system tasks and syscall execution.
-
-### Microkernel OS and Software Stack
-*   **Bootstrap Loader:** The startup assembly bootstrap (`start.s`) configures system registers, builds stacks, sets trap vector registers, and invokes the kernel.
-*   **Nano-OS Kernel:** The C kernel (`main.c`) manages input/output routing, handles syscall interrupts via `ecall` (e.g., standard print and get character operations), and controls execution.
-*   **Interactive Game:** A bare-metal Snake game written in C runs directly on the OS kernel. It interfaces with a memory-mapped virtual UART at address `0x00003FF0` for real-time console rendering and keyboard input.
+This repository features a fully-pipelined RV32I processor, a suite of custom hardware execution subsystems (compressed instructions, L1 cache, dynamic branch prediction, hardware math, and a systolic array ML accelerator), a custom microkernel operating system, an interactive web-based simulator, and a separate bare-metal TUI Window Manager running on a QEMU-simulated RISC-V platform.
 
 ---
 
-## Datapath Block Diagram
+## 🗺️ System Co-Design Architecture
+
+Below is the conceptual layout of the full hardware-software stack, detailing how the software applications interface with operating system layers, custom drivers, and hardware execution units.
 
 ```mermaid
 graph TD
-    classDef stage fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc;
-    classDef mem fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#f8fafc;
-    classDef ctrl fill:#b45309,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
-    classDef haz fill:#991b1b,stroke:#ef4444,stroke-width:2px,color:#f8fafc;
+    classDef app fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+    classDef os fill:#0f766e,stroke:#14b8a6,stroke-width:2px,color:#f8fafc;
+    classDef hw fill:#7c2d12,stroke:#ea580c,stroke-width:2px,color:#f8fafc;
+    classDef accel fill:#581c87,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
 
-    subgraph Pipeline Stages
-      IF[riscv_fetch_stage]:::stage
-      ID[riscv_decode_stage]:::stage
-      EX[riscv_execute_stage]:::stage
-      MEM[riscv_memory_stage]:::stage
-      WB[Writeback Logic]:::stage
+    subgraph Software Application Layer
+        SnakeApp[Snake Game C App]:::app
+        TUIApp[TUI Desktop Shell]:::app
     end
 
-    subgraph Storage & Execution Units
-      IMEM[riscv_instruction_mem]:::mem
-      RF[riscv_register_file]:::mem
-      ALU[riscv_alu]:::mem
-      DMEM[riscv_data_mem]:::mem
-      CSR[riscv_csr_unit]:::mem
+    subgraph Operating System & Kernel Layer
+        NanoKernel[Nano-OS Kernel main.c]:::os
+        Bootloader[Assembly Bootloader start.s]:::os
+        QemuOS[QEMU TUI OS Kernel & GUI]:::os
     end
 
-    subgraph Pipeline Control
-      CU[riscv_control_unit]:::ctrl
-      HU[riscv_hazard_unit]:::haz
+    subgraph Hardware Platform Core
+        FetchStage[Fetch IF Stage]:::hw
+        DecodeStage[Decode ID Stage]:::hw
+        ExecuteStage[Execute EX Stage]:::hw
+        MemoryStage[Memory MEM Stage]:::hw
+        CSRUnit[Privileged CSR Unit]:::hw
+        RegFile[Register File]:::hw
+        UART[MMIO Virtual UART]:::hw
     end
 
-    IF -->|Address PC| IMEM
-    IMEM -->|InstrD| ID
-    ID -->|Read Registers rs1/rs2| RF
-    ID -->|Decoded Logic| CU
-    CU -->|Control Signals| EX
-    RF -->|RD1E/RD2E| EX
-    EX -->|ALU Ops & Targets| ALU
-    ALU -->|Result / Write Data| DMEM
-    DMEM -->|Loaded Data| WB
-    WB -->|Writeback Result| RF
+    subgraph Custom Hardware Accelerators
+        RV32C[Compressed Instruction Decoder]:::accel
+        DCache[L1 Data Cache Controller + SRAM]:::accel
+        BP[Dynamic Branch Predictor BHT + BTB]:::accel
+        M_Ext[Booth Multiplier & Non-Restoring Divider]:::accel
+        InferenceChip[Tiny Inference Chip 4x4 Systolic Array]:::accel
+    end
+
+    %% Software to OS connections
+    SnakeApp -->|Syscalls: getc / putc| NanoKernel
+    TUIApp -->|Window API| QemuOS
+
+    %% OS to Hardware connections
+    Bootloader -->|Spawns| NanoKernel
+    NanoKernel -->|Loads/Stores| UART
+    QemuOS -->|Reads/Writes| CSRUnit
     
-    CU -.->|is_system_instr| CSR
-    CSR -.->|mtvec / mepc| IF
+    %% Hardware Core Stage connections
+    FetchStage -->|Fetch Instr| DecodeStage
+    DecodeStage -->|Decode & Control| ExecuteStage
+    ExecuteStage -->|ALU Result| MemoryStage
+    MemoryStage -->|Writeback Data| RegFile
 
-    HU -.->|Stall PC / Stall IF-ID| IF
-    HU -.->|Flush ID-EX| EX
-    HU -.->|Forwarding Controls| EX
+    %% Hardware to Accelerator connections
+    FetchStage <-->|Translate 16-bit to 32-bit| RV32C
+    FetchStage <-->|Predict Next PC| BP
+    ExecuteStage <-->|Accelerated Multiply / Divide| M_Ext
+    ExecuteStage <-->|Custom Opcode Inference| InferenceChip
+    MemoryStage <-->|L1 Cache Lookup| DCache
 ```
 
 ---
 
-## Repository Directory Structure
+## ⚡ Key Hardware Subsystems
+
+### 1. Baseline 5-Stage Pipelined Processor Core ([rtl/RV32I](rtl/RV32I))
+*   **ISA Support:** Complete RV32I Base Integer Instruction Set (37 instructions), including computational, load/store, control transfer, and system operations.
+*   **Pipeline Stages:**
+    *   **Fetch (IF):** Implements program counter (PC) logic with stall control, exception injection, and branch/jump flushes.
+    *   **Decode (ID):** Performs opcode decoding, sign/zero immediate extensions, register file reads, and generates pipeline control signals.
+    *   **Execute (EX):** Contains the 32-bit ALU, PC target calculators, and forwarding multiplexers.
+    *   **Memory (MEM):** Handles data memory access for word, half-word, and byte reads/writes. Integrates the CSR Unit.
+    *   **Writeback (WB):** Selects register write data (ALU result, Memory loaded data, or PC+4 link values).
+*   **Hazard Management:**
+    *   *Forwarding Logic:* Resolves Read-After-Write (RAW) data dependencies from the MEM and WB stages back to the EX stage, maintaining execution flow without pipeline bubbles.
+    *   *Load-Use Stall:* Detects load-to-use hazards, stalls Fetch and Decode, and inserts a bubble in Execute.
+    *   *Control Hazard:* Instantly flushes instructions in Fetch and Decode stages on branch mispredictions or jump execution.
+
+### 2. Privileged ISA & Control Unit ([rtl/RV32I/riscv_csr_unit.sv](rtl/RV32I/riscv_csr_unit.sv))
+*   **Privilege Levels:** Supports **Machine Mode (M-mode)** for boot/kernel access, and **Supervisor Mode (S-mode)** for operating systems.
+*   **Registers Implemented:**
+    *   *M-Mode:* `mstatus` (privilege and interrupt status), `mtvec` (trap vector configuration), `mepc` (exception return PC), `mcause` (trap cause), and `mscratch` (context buffer).
+    *   *S-Mode:* `sstatus`, `stvec`, `sepc`, and `scause`.
+*   **Trap Handling:** Automated hardware exception redirection, privilege stacking, and recovery routines (`ecall`, `ebreak`, `mret`, `sret`) to enable system call invocation.
+
+### 3. Compressed Instruction Decoder ([rtl/compressed_decoder](rtl/compressed_decoder))
+*   **Concept:** Implements the **RV32C Extension** decompression.
+*   **Features:** A SystemVerilog module ([riscv_core_compressed_decoder.sv](rtl/compressed_decoder/riscv_core_compressed_decoder.sv)) translates 16-bit compressed instructions into standard 32-bit RV32I instruction signals within a single cycle. It enables smaller memory footprint binaries without altering downstream pipeline stages.
+
+### 4. L1 Data Cache (D-Cache) Subsystem ([rtl/d_cache](rtl/d_cache))
+*   **Concept:** Enhances processor memory access latency.
+*   **Features:** Implements a direct-mapped L1 Data Cache. Includes a D-Cache Controller ([riscv_core_dcache_controller.sv](rtl/d_cache/riscv_core_dcache_controller.sv)), cache memory SRAM ([riscv_core_dcache_memory.sv](rtl/d_cache/riscv_core_dcache_memory.sv)), and load sign-extension controllers to resolve hits/misses, fetch cache lines, and interface with main memory.
+
+### 5. Dynamic Branch Prediction ([rtl/dynamic_branch_prediction](rtl/dynamic_branch_prediction))
+*   **Concept:** Eliminates pipeline stalls due to control hazards.
+*   **Features:** Integrates a **Branch History Table (BHT)** ([risc_bht.sv](rtl/dynamic_branch_prediction/risc_bht.sv)) using a 2-bit saturating counter scheme, paired with a **Branch Target Buffer (BTB)** ([risc_btb.sv](rtl/dynamic_branch_prediction/risc_btb.sv)) storing branch destination addresses. The fetch stage predicts taken/not-taken paths, and the execute stage validates predictions, performing pipeline flushes only on mispredictions.
+
+### 6. RV32M Extension Execution Unit ([rtl/m_extension](rtl/m_extension))
+*   **Concept:** High-performance hardware arithmetic operations.
+*   **Features:** Connects a fully integrated **Booth's Multiplier** and a **Non-Restoring Divider** ([risc_V_non_restoring_div.sv](rtl/m_extension/design/risc_V_non_restoring_div.sv)) to the pipeline. Supports hardware multiplication (`mul`, `mulh`, `mulhsu`, `mulhu`) and division/remainder calculations (`div`, `divu`, `rem`, `remu`).
+
+### 7. Tiny Inference Chip / Systolic Array Coprocessor ([rtl/tiny_inference_chip](rtl/tiny_inference_chip))
+*   **Concept:** An on-chip neural network accelerator.
+*   **Features:** Implements a **4x4 Systolic Array** ([systolic_4x4.sv](rtl/tiny_inference_chip/compute/systolic_4x4.sv)) of Processing Elements (PEs) controlled by a dedicated finite state machine (FSM). It accelerates linear classifier evaluations (dot products of weights and input features) to perform machine learning classification directly in hardware using custom instruction opcodes.
+
+---
+
+## 💾 Software Runtimes
+
+### A. Bare-Metal C Nano-OS & Snake Game ([sw/src](sw/src))
+*   **Bootstrap Loader (`start.s`):** Assembly entry point that sets up stacks for Machine and Supervisor modes, registers trap handling vectors, and calls the C main kernel.
+*   **Nano-OS Kernel (`main.c`):** Implements character I/O, software-level trap handler dispatching, and system calls via `ecall`.
+*   **Snake Game:** A lightweight C implementation of Snake running bare-metal on the Nano-OS, interacting with a virtual UART at memory address `0x00003FF0` for real-time graphics and keyboard input.
+
+### B. Web-Based RISC-V System Emulator ([sw/snake.html](sw/snake.html))
+*   **Concept:** A zero-dependency web-based instruction set simulator.
+*   **Features:** Simulates the RV32I core at ~3.5 MHz directly in your web browser. Includes a visual dashboard showing real-time registers trace, memory disassembly, virtual UART console output, and interactive keyboard input mapping.
+
+### C. QEMU OS & Window Manager GUI ([sw/src/qemu_os](sw/src/qemu_os))
+*   **Concept:** A separate bare-metal operating system targeting the **QEMU RISC-V Virt Machine**.
+*   **Features:**
+    *   **Double-buffered Framebuffer:** A text-cell virtual framebuffer ([framebuffer.c](sw/src/qemu_os/drivers/framebuffer.c)) that diffs the current frame against the previous one, sending ANSI VT100 escape codes only for updated cells. This eliminates screen flicker and maximizes UART bandwidth.
+    *   **Window Manager:** Supports overlapping windows, title bars, borders, and input focus rotation (via `TAB`). Includes standard widget drawing helpers (labels, separators, buttons, progress bars).
+    *   **Desktop Shell:** Renders a three-window dashboard: *System Info* (live RISC-V CSR readings for `mcycle` and `mstatus`), *App Launcher* (keyboard navigation to launch applications), and *Activity Log* (scrolling ring buffer logging key actions).
+
+---
+
+## 📁 Repository Directory Structure
 
 ```text
 RISCV-MicroKernel-Architecture/
 ├── Standard/                    # Official RISC-V Specifications & Documentation
-│   ├── RISC-V ISA Manual.pdf
-│   └── riscv-privileged.pdf
-├── rtl/
-│   └── RV32I/                   # Core Hardware Logic Modules (SystemVerilog)
-│       ├── riscv_pc_target.sv          # Branch & jump destination calculation
-│       ├── riscv_alu.sv                # 32-bit ALU engine
-│       ├── riscv_control_unit.sv       # Instruction opcode & funct decoder
-│       ├── riscv_csr_unit.sv           # CSR storage & privilege control
-│       ├── riscv_data_mem.sv           # Byte-addressable RAM unit with MMIO UART
-│       ├── riscv_instruction_table.txt  # Instruction mapping index
-│       ├── riscv_extend.sv             # Immediate generation module
-│       ├── riscv_hazard_unit.sv        # Forwarding & stall controller
-│       ├── riscv_instruction_mem.sv    # ROM wrapper (loads sw/build/firmware.hex)
-│       ├── riscv_mux_3_1.sv            # 3-to-1 data multiplexer
-│       ├── riscv_pc_src_controller.sv   # Branch validation resolver
-│       ├── riscv_register_file.sv      # Dual-read single-write register array
-│       ├── riscv_fetch_stage.sv        # Stage 1: Instruction Fetch (IF)
-│       ├── riscv_decode_stage.sv       # Stage 2: Instruction Decode (ID)
-│       ├── riscv_execute_stage.sv      # Stage 3: Instruction Execute (EX)
-│       ├── riscv_memory_stage.sv       # Stage 4: Data Memory Stage (MEM)
-│       ├── riscv_test.s                # Pipelined assembly verification test
-│       ├── riscv_top_pipeline.sv       # Processor datapath wrapper (DUT)
-│       ├── riscv_top_tb.sv             # Main simulation testbench
-│       └── run.do                      # ModelSim compilation configuration
-├── sim/                         # Verification scripts (ModelSim/QuestaSim)
-│   ├── run.do                   # Complete pipeline test run configuration
-│   ├── run_ctrl.do              # Control unit verification script
-│   ├── run_hazard.do            # Hazard unit validation script
-│   └── run_instr_mem.do         # Instruction memory test validation script
-├── sw/                          # Software ecosystem (Bare-Metal C & Assembly)
-│   ├── build/                   # Target compile artifacts (.elf, .hex, .dis)
-│   ├── src/                     # Program source codes
-│   │   ├── main.c               # Snake game logic & Nano-OS kernel
+│   ├── RISC-V ISA Manual.pdf    # Unprivileged ISA Spec
+│   └── riscv-privileged.pdf     # Privileged Architecture Spec
+├── rtl/                         # Hardware SystemVerilog RTL Source Files
+│   ├── RV32I/                   # Base Core Pipeline, Hazards, CSR, and UART
+│   │   ├── riscv_top_pipeline.sv    # Top-level datapath wrapper
+│   │   ├── riscv_csr_unit.sv        # Control & Status Registers + Trap router
+│   │   ├── riscv_data_mem.sv        # RAM + MMIO UART decoder
+│   │   ├── riscv_hazard_unit.sv     # Forwarding and load-use stall unit
+│   │   ├── riscv_fetch_stage.sv     # Stage 1: Fetch (IF)
+│   │   ├── riscv_decode_stage.sv    # Stage 2: Decode (ID)
+│   │   ├── riscv_execute_stage.sv   # Stage 3: Execute (EX)
+│   │   ├── riscv_memory_stage.sv    # Stage 4: Memory (MEM)
+│   │   └── riscv_top_tb.sv          # Main verification testbench
+│   ├── compressed_decoder/      # RV32C 16-bit instruction translation module
+│   ├── d_cache/                 # Direct-mapped L1 Data Cache + SRAM memory
+│   ├── dynamic_branch_prediction/ # Branch Predictor (BHT + BTB + resolve logic)
+│   ├── m_extension/             # Booth's Multiplier & Non-Restoring Divider
+│   └── tiny_inference_chip/     # 4x4 Systolic Array machine learning accelerator
+├── sim/                         # RTL verification scripts (ModelSim/QuestaSim)
+├── sw/                          # Software Ecosystem (C & Assembly)
+│   ├── build/                   # Compilation build artifacts (.elf, .hex, .dis)
+│   ├── src/                     # Code sources
+│   │   ├── main.c               # Snake Game and Nano-OS kernel
 │   │   ├── start.s              # Assembly bootloader & trap handlers
-│   │   └── riscv_test.s         # Initial instruction validation code
-│   ├── Makefile                 # GCC automated Linux/Windows build flow
-│   ├── build.bat                # Windows Command Prompt build execution
-│   ├── build.ps1                # Windows PowerShell build utility
-│   ├── elf2hex.py               # ELF binary to plain HEX formatter
-│   ├── input.txt                # Keyboard input buffer file for RTL UART
-│   ├── linker.ld                # Target system memory layout linker script
-│   ├── play_game.py             # Keyboard capture script for RTL simulation
-│   ├── snake.html               # Real-time web-based RV32I system emulator
-│   └── snake.py                 # Native Python implementation of game logic
-└── README.md                    # Project documentation
+│   │   ├── riscv_test.s         # Baseline instruction pipeline test
+│   │   └── qemu_os/             # Complete bare-metal GUI OS for QEMU virt
+│   ├── linker.ld                # Linker memory layout for custom RTL core
+│   ├── play_game.py             # Python script routing keyboard input to RTL UART
+│   ├── snake.html               # Web-based RV32I system emulator dashboard
+│   ├── build.bat / build.ps1    # Automated compilation scripts for Windows
+│   └── Makefile                 # Make compilation rules for Linux/WSL/Git Bash
+├── book.md                      # Full integration verification assembly test
+├── chapter_6_privileged_isa.md  # Detailed manual on CSR & trap architecture
+├── os_design_slides.md          # Architectural presentation slides
+├── tui_design_guide.md          # Deep dive manual on building the TUI Window Manager
+└── run_xsim.bat / run_xsim_snake.bat # Vivado hardware simulation scripts
 ```
 
 ---
 
-## Operating and Playing Instructions
+## 🚀 Running & Play Instructions
 
-You can run the Snake system in two ways: using the interactive web emulator dashboard (recommended for real-time speed) or using the RTL simulation in Questa/ModelSim.
+Choose one of three modes to run and explore the system:
 
-### Method A: Web-Based RISC-V Emulator (Recommended)
-This method runs your compiled RISC-V binary on a real-time instruction set emulator built directly into the codebase. It runs at ~3.5 MHz and provides register tracing.
+### Method A: Web-Based RV32I Emulator (Zero Setup)
+Runs the compiled firmware inside a real-time JS emulator with register tracing.
 
-1.  **Build the firmware:**
-    Navigate to the `sw/` folder and compile the code:
+1.  **Build the firmware binary:**
+    Navigate to the `sw/` folder in your terminal and compile the program:
     ```powershell
     cd sw
-    .\build.bat
+    ./build.ps1
     ```
-2.  **Open the emulator page:**
-    Open the [snake.html](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/snake.html) file in your web browser.
-3.  **Load the compiled code:**
+2.  **Launch the emulator:**
+    Open the [snake.html](sw/snake.html) page in any web browser.
+3.  **Load the ROM:**
     Click the **LOAD FIRMWARE.HEX** button at the top-left, navigate to `sw/build/`, and select the **`firmware.hex`** file.
-4.  **Play the game:**
-    Click inside the terminal screen region to focus control. Use the **W / A / S / D** keys or arrow keys on your keyboard to navigate the snake. Use **R** to restart.
+4.  **Control the Snake:**
+    Click inside the terminal window to focus. Use **W / A / S / D** or Arrow keys to move the snake, and **R** to restart the game.
 
 ---
 
 ### Method B: Questa/ModelSim RTL Simulation
-This method simulates the physical hardware gates of the processor cycle-by-cycle in ModelSim/Questa.
+Simulates the physical hardware gates of the processor cycle-by-cycle.
 
-1.  **Build the firmware:**
+1.  **Compile the software binary:**
     ```powershell
     cd sw
-    .\build.bat
+    ./build.ps1
     ```
-2.  **Start the keyboard feeder:**
-    Open a dedicated terminal window and run:
+2.  **Start the Keyboard Input Router:**
+    Open a dedicated terminal and run:
     ```powershell
-    python play_game.py
+    python sw/play_game.py
     ```
-    Keep this window active/focused when pressing keys. It catches inputs and routes them to the simulation.
-3.  **Start the simulation:**
-    Open another terminal window, navigate to `rtl/RV32I`, and run:
+    Keep this terminal focused during gameplay. It intercepts keyboard presses and routes them to the simulated hardware UART.
+3.  **Start the Simulator:**
+    Open another terminal window, navigate to `rtl/RV32I/`, and run ModelSim compilation:
     ```powershell
     vsim -c -do "vlib work; vlog *.sv; vsim riscv_top_tb; run -all"
     ```
-    The simulated terminal screen will render the board inside the console output. Controls are **W / A / S / D** (sent from the `play_game.py` window) and **Q** to reset.
+    The simulated terminal will render the ASCII snake board directly inside the simulator's standard console. Controls: **W / A / S / D** (sent via the feeder) and **Q** to reset.
+
+*Note: You can also use Vivado's simulator by running the `run_xsim_snake.bat` script.*
 
 ---
 
-## File Reference Index
+### Method C: Bare-Metal QEMU OS & TUI Dashboard
+Runs the advanced window manager shell inside QEMU's virtual platform.
 
-### Core Hardware Modules
-*   [riscv_top_pipeline.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_pipeline.sv): Main wrapper connecting pipeline stages and units.
-*   [riscv_csr_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_csr_unit.sv): CSR register bank and trap redirection.
-*   [riscv_data_mem.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_data_mem.sv): Data memory RAM and memory-mapped console.
-*   [riscv_hazard_unit.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_hazard_unit.sv): Pipeline hazard processor controller.
-*   [riscv_top_tb.sv](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/rtl/RV32I/riscv_top_tb.sv): Testbench harness.
+1.  **Prerequisites:**
+    *   **QEMU:** Verify that `qemu-system-riscv32` is installed and on your system path.
+    *   **Terminal:** Use **Windows Terminal** or **PuTTY** (standard CMD does not support 256-color ANSI VT100 control codes).
+2.  **Compile the OS:**
+    Navigate to the QEMU source directory and build:
+    ```powershell
+    cd sw/src/qemu_os
+    ./build_qemu_os.ps1
+    ```
+3.  **Run QEMU:**
+    Start the simulator to boot the OS:
+    ```powershell
+    qemu-system-riscv32 -machine virt -nographic -bios none -m 128M -kernel build/qemu_os.elf
+    ```
+4.  **Interact with the GUI:**
+    *   Press **`TAB`** to switch window focus.
+    *   Use **`W` / `S`** or Arrow keys to navigate menu lists in the launcher.
+    *   Press **`ENTER`** to trigger buttons.
+    *   Press **`Q`** to halt the OS kernel, or **`Ctrl-A` then `X`** to exit the QEMU emulator entirely.
 
-### Software Stack
-*   [main.c](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/src/main.c): Kernel execution path and Snake game code.
-*   [start.s](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/src/start.s): Assembly startup bootstrap and exception handler routines.
-*   [linker.ld](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/linker.ld): System memory linker mapping layout.
-*   [build.bat](file:///C:/Users/ABDOU/Desktop/GP_folder/RISC-V/repos/RISCV-MicroKernel-Architecture/sw/build.bat): Windows compilation batch utility.
+---
+
+## 🔍 Architectural Deep Dives
+
+### Privilege Redirection and Trap Flow
+When an exception or system call occurs (e.g., `ecall`), the hardware handles redirection:
+1. The CPU stores the trapping instruction's address in `mepc` (M-mode) or `sepc` (S-mode).
+2. The reason for the trap (cause encoding) is saved to `mcause` or `scause`.
+3. The current privilege mode is saved to `mstatus.MPP` or `sstatus.SPP`.
+4. The CPU transitions to M-mode or S-mode and jumps the program counter (PC) to the address loaded in `mtvec` or `stvec`.
+5. The trap handler saves CPU registers to stack, dispatches the system call or registers error logs, and calls `mret`/`sret` to restore the previous execution state and return.
+
+### Framebuffer Diffing Engine
+To render a 256-color graphical interface over a 115200-baud UART without lagging or flickering, the QEMU OS uses two matrices:
+*   `fb_cur[24][80]` (holds the target frame drawn by widgets).
+*   `fb_prev[24][80]` (holds the frame currently shown on the screen).
+
+The flush routine evaluates:
+$$\forall (y, x) \in [0, 23] \times [0, 79], \quad \text{if } fb\_cur[y][x] \neq fb\_prev[y][x]$$
+Only when this assertion is true does the compiler emit the VT100 move cursor code `\033[y;xH`, update the colors, write the new character, and copy the value to `fb_prev`. This slashes UART throughput requirements by up to 95%, keeping animations smooth.
+
+### Systolic Array Matrix Multiplication
+The on-chip ML accelerator operates a 4x4 array of processing elements (PEs). Each PE contains a multiply-accumulate (MAC) circuit, a weight register, and local data routing buffers.
+*   **Step 1:** Weights are loaded into the PEs row-by-row via custom instructions.
+*   **Step 2:** Feature vectors are streamed column-by-column into the left boundary PEs.
+*   **Step 3:** Partial products flow horizontally and vertically through registers on each clock tick.
+*   **Step 4:** Results are collected from the output registers and parsed by a classifier to choose the output class, avoiding software ALU computation cycles.
+
+---
+
+## 📚 References & Standards
+*   [RISC-V Unprivileged ISA Specification](Standard/RISC-V%20ISA%20Manual.pdf)
+*   [RISC-V Privileged ISA Specification](Standard/riscv-privileged.pdf)
+*   [TUI Design Guide & Specifications](tui_design_guide.md)

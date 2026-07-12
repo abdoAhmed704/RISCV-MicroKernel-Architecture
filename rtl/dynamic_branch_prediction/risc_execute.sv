@@ -20,7 +20,8 @@ module execute_prediction_logic (
 );
 
     wire misprediction;
-    assign misprediction  = exe_is_branch && (predict_taken_old != actual_taken);
+    assign misprediction  = (exe_is_branch && (predict_taken_old != actual_taken)) ||
+                            (!exe_is_branch && predict_taken_old);
     
     assign flush_pipeline = misprediction;
 
